@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@raw/bg"
+    tools:context="ng.schooln.ueapp.views.SignUpOptions">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:id="@+id/ut"
+        android:layout_marginTop="120dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="U"
+            android:textSize="40dp"
+            android:textColor="@color/appcolor"
+            android:id="@+id/u"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="EApp"
+            android:textSize="20dp"
+            android:textColor="@color/colorPrimary"
+            android:id="@+id/e"
+            />
+    </LinearLayout>
+
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Everybody knows"
+        android:layout_below="@+id/ut"
+        android:textSize="12sp"
+        android:textAlignment="center"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="95dp"
+        android:orientation="vertical">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="Create Account"
+            android:textAllCaps="false"
+            android:onClick="createaccount"
+            android:padding="5dp"
+            android:background="@color/appcolor"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:layout_marginEnd="@dimen/activity_vertical_margin"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="Already have an account, login"
+            android:textSize="15sp"
+            android:textAllCaps="false"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:background="@color/colorPrimary"
+            android:textColor="@color/white"
+            android:onClick="Login"
+            android:padding="5dp"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            />
+    </LinearLayout>
+</RelativeLayout>

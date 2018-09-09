@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="ng.schooln.ueapp.views.MainActivity"
+    android:background="@raw/bg">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/main1">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="170dp"
+                android:gravity="center"
+                android:layout_centerHorizontal="true">
+                <ng.schooln.ueapp.utils.TextviewFormat
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Account"
+                    android:textSize="20dp"
+                    android:textColor="@color/appcolor"
+                    android:id="@+id/u"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Type"
+                    android:textSize="20dp"
+                    android:textColor="@color/colorPrimary"
+                    android:id="@+id/e"
+                    />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:gravity="center"
+                android:orientation="horizontal">
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="Staff"
+                    android:background="@color/appcolor"
+                    android:textColor="@color/white"
+                    android:onClick="Staff"
+                    android:textSize="15sp"
+                    android:layout_marginEnd="@dimen/activity_vertical_margin"
+                    />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="Student"
+                    android:textSize="15sp"
+                    android:background="@color/colorPrimary"
+                    android:onClick="Student"
+                    android:textColor="@color/white"
+                    android:layout_marginStart="@dimen/activity_vertical_margin"
+                    />
+            </LinearLayout>
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:id="@+id/main2">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:visibility="visible"
+                android:id="@+id/selectdept"
+                android:text="Select Level"/>
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dropdown"
+                android:layout_marginTop="10dp"
+                android:visibility="visible"
+                android:entries="@array/level"
+                android:id="@+id/deptspinner"
+                android:layout_gravity="center"
+                android:textAlignment="center"
+                >
+            </Spinner>
+        </RelativeLayout>
+
+</RelativeLayout>

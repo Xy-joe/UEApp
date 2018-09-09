@@ -1,0 +1,145 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:background="@raw/bg"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="ng.schooln.ueapp.views.SchoolSelect">
+
+    <!-- Login progress -->
+
+    <ScrollView
+        android:id="@+id/login_form"
+        android:layout_width="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_height="match_parent"
+        >
+
+        <LinearLayout
+            android:id="@+id/email_login_form"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/cameralay"
+                android:visibility="gone"
+                android:orientation="vertical">
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="center"
+                    android:onClick="openGallery"
+                    android:layout_marginTop="100dp"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:layout_width="200dp"
+                        android:layout_height="200dp"
+                        android:id="@+id/image"
+                        android:background="@color/colorPrimary"
+                        />
+                    <ImageView
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="40dp"
+                        android:src="@drawable/ic_add_photo"
+                        android:id="@+id/camicon"
+                        android:layout_centerHorizontal="true"
+                        />
+                    <ng.schooln.ueapp.utils.TextviewFormat
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:text="Click to select photo"
+                        android:textColor="@color/white"
+                        android:id="@+id/text"/>
+                </RelativeLayout>
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:textSize="15sp"
+                    android:text="Next"
+                    android:visibility="gone"
+                    android:background="@color/appcolor"
+                    android:textColor="@color/white"
+                    android:layout_gravity="center"
+                    android:onClick="SelectDept"
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/next"
+                    android:padding="4dp"
+                    android:elevation="2dp"
+                    />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/deptlay"
+                android:visibility="visible"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="150dp"
+                    android:text="Select School"/>
+                <Spinner
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:spinnerMode="dropdown"
+                    android:layout_marginTop="10dp"
+                    android:entries="@array/faculty"
+                    android:id="@+id/spinner"
+                    android:layout_gravity="center"
+                    android:textAlignment="center"
+                    >
+                </Spinner>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:visibility="gone"
+                    android:id="@+id/selectdept"
+                    android:text="Select Department"/>
+                <Spinner
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:spinnerMode="dropdown"
+                    android:layout_marginTop="10dp"
+                    android:visibility="gone"
+                    android:id="@+id/deptspinner"
+                    android:layout_gravity="center"
+                    android:textAlignment="center"
+                    >
+                </Spinner>
+
+
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:textAlignment="center"
+                    android:text="Next"
+                    android:textColor="@color/white"
+                    android:onClick="openusertype"
+                    android:background="@color/appcolor"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:padding="5dp"
+                    android:id="@+id/next2"
+                    android:visibility="gone"
+                    android:textSize="15sp"
+                    android:elevation="2dp"/>
+            </LinearLayout>
+
+
+
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>
