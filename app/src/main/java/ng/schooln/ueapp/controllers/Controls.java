@@ -1,9 +1,14 @@
 package ng.schooln.ueapp.controllers;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
+import android.util.Patterns;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -19,9 +24,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
+import ng.schooln.ueapp.R;
 import ng.schooln.ueapp.models.StudentModel;
+import ng.schooln.ueapp.utils.Connectivity;
 import ng.schooln.ueapp.utils.Variables;
 import ng.schooln.ueapp.views.Homepage;
+import ng.schooln.ueapp.views.LoginActivity;
 import ng.schooln.ueapp.views.MainActivity;
 import ng.schooln.ueapp.views.SchoolSelect;
 
@@ -33,63 +41,78 @@ public class Controls {
     private FirebaseAuth auth;
     private Variables variables = new Variables();
     private DbHelper dbHelper;
+    private ProgressDialog progressDialog;
 
     public Controls(FirebaseAuth auth) {
         this.auth = auth;
     }
 
     public void Login(final Context context, String email, String password){
-        if (auth != null){
-            auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()){
-                        dbHelper = new DbHelper(auth, context);
-                        dbHelper.studentref(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.getValue() != null){
-                                    gotohomepage(context, null, variables.Student);
-                                }else {
-                                    dbHelper.staffref(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                            if (dataSnapshot.getValue() != null){
-                                                gotohomepage(context,variables.Staffs, null);
-                                            }else {
-                                                context.startActivity(new Intent(context, SchoolSelect.class));
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setCancelable(false);
+        progressDialog.setMessage(context.getResources().getString(R.string.pleasewait));
+        if (Connectivity.isConnected(context)){
+            if (auth != null){
+                progressDialog.show();
+                auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()){
+                            dbHelper = new DbHelper(auth, context);
+                            dbHelper.studentref(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    if (dataSnapshot.getValue() != null){
+                                        progressDialog.dismiss();
+                                        gotohomepage(context, null, variables.Student);
+                                    }else {
+                                        dbHelper.staffref(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                if (dataSnapshot.getValue() != null){
+                                                    progressDialog.dismiss();
+                                                    gotohomepage(context,variables.Staffs, null);
+                                                }else {
+                                                    progressDialog.dismiss();
+                                                    context.startActivity(new Intent(context, SchoolSelect.class));
+                                                }
                                             }
-                                        }
 
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                                        }
-                                    });
+                                            }
+                                        });
+                                    }
                                 }
-                            }
 
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                            }
-                        });
+                                }
+                            });
+                        }
                     }
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    if (e instanceof FirebaseAuthUserCollisionException) {
-                        Toast.makeText(context, "A user with this email already exists", Toast.LENGTH_LONG).show();
-                    } else if ( e instanceof FirebaseAuthInvalidCredentialsException) {
-                        Toast.makeText(context, "The email you entered does not exist", Toast.LENGTH_LONG).show();
-                    }else {
-                        Toast.makeText(context, "Invalid email or password", Toast.LENGTH_LONG).show();
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressDialog.dismiss();
+                        if (e instanceof FirebaseAuthUserCollisionException) {
+                            Toast.makeText(context, "A user with this email already exists", Toast.LENGTH_LONG).show();
+                        } else if ( e instanceof FirebaseAuthInvalidCredentialsException) {
+                            Toast.makeText(context, "The email you entered does not exist", Toast.LENGTH_LONG).show();
+                        }else {
+                            Toast.makeText(context, "Invalid email or password", Toast.LENGTH_LONG).show();
+                        }
+                        e.printStackTrace();
                     }
-                    e.printStackTrace();
-                }
-            });
+                });
+            }
+        }else {
+            Toast.makeText(context, "Internet Connection failed", Toast.LENGTH_LONG).show();
+
         }
+
     }
 
     public void SignUp(final Context context, final String uname, String email, String password){
@@ -162,5 +185,49 @@ public class Controls {
             StudentModel studentModel = new StudentModel(auth.getCurrentUser().getDisplayName(), dept, level, auth.getCurrentUser().getPhotoUrl().toString(), faculty);
             dbHelper.studentref(auth.getCurrentUser().getUid()).setValue(studentModel);
         }
+    }
+    public void recoverPpassword(String email, final Context context){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setCancelable(false);
+        progressDialog.setMessage(context.getResources().getString(R.string.pleasewait));
+        builder.setCancelable(false);
+        progressDialog.show();
+        auth.sendPasswordResetEmail(email).addOnFailureListener(new OnFailureListener() {
+          @Override
+          public void onFailure(@NonNull Exception e) {
+              progressDialog.dismiss();
+              if (e instanceof FirebaseAuthUserCollisionException) {
+                  Toast.makeText(context, "A user with this email already exists", Toast.LENGTH_LONG).show();
+              } else if ( e instanceof FirebaseAuthInvalidCredentialsException) {
+                  Toast.makeText(context, "The email you entered does not exist", Toast.LENGTH_LONG).show();
+              }else {
+                  Toast.makeText(context, "Invalid email or password", Toast.LENGTH_LONG).show();
+              }
+              e.printStackTrace();
+          }
+      }).addOnSuccessListener(new OnSuccessListener<Void>() {
+          @Override
+          public void onSuccess(Void aVoid) {
+              progressDialog.dismiss();
+              builder.setTitle("Done");
+              builder.setMessage("Recovery link sent Successfully");
+              builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                  @Override
+                  public void onClick(DialogInterface dialogInterface, int i) {
+                      Intent intent = new Intent(context, LoginActivity.class);
+                      intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                      context.startActivity(intent);
+                  }
+              });
+              AlertDialog alert = builder.create();
+              alert.show();
+
+          }
+      });
+    }
+
+    public boolean isValidEmail(String email) {
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 }

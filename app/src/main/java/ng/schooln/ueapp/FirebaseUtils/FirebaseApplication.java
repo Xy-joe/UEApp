@@ -6,6 +6,7 @@ import com.crashlytics.android.Crashlytics;
 import com.firebase.client.Firebase;
 import com.google.firebase.database.FirebaseDatabase;
 import io.fabric.sdk.android.Fabric;
+import ng.schooln.ueapp.utils.Connectivity;
 
 /**
  * Created by xyjoe on 9/8/18.
@@ -28,12 +29,6 @@ public class FirebaseApplication extends Application {
                 .debuggable(true)           // Enables Crashlytics debugger
                 .build();
         Fabric.with(fabric);
-        // Installing the Emoji Manager Class for the entire application
-        //  EmojiManager.install(new GoogleEmojiProvider());
-
-
-
-
     }
 
     public static synchronized FirebaseApplication getInstance() {
@@ -49,6 +44,8 @@ public class FirebaseApplication extends Application {
 
     }
 
-
+    public void setConnectivityListener(Connectivity.ConnectivityReceiverListener listener) {
+        Connectivity.connectivityReceiverListener = listener;
+    }
 
 }

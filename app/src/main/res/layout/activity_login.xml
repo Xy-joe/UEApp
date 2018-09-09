@@ -11,15 +11,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="ng.schooln.ueapp.views.LoginActivity">
 
-    <!-- Login progress -->
-    <ProgressBar
-        android:id="@+id/login_progress"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone" />
+
     <ng.schooln.ueapp.utils.TextviewFormat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -7,4 +7,5 @@
     <color name="header_text">#031d46</color>
     <color name="grey">#cccccc</color>
     <color name="appcolor">#f9955a</color>
+    <color name="black">#000000</color>
 </resources>
