@@ -197,6 +197,7 @@ public class Controls {
         progressDialog.setMessage(context.getResources().getString(R.string.pleasewait));
         dbHelper = new DbHelper(auth, context);
         if (Connectivity.isConnected(context)){
+            progressDialog.show();
             if (picturepath != null){
                 Bitmap bitmap = decodeSampledBitmapFromResource(picturepath, 500, 600);
                 Locale locale = new Locale("yyMMddHHmmss");
@@ -257,8 +258,16 @@ public class Controls {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()){
+                                                if ((progressDialog != null) && progressDialog.isShowing()) {
+                                                    progressDialog.dismiss();
+                                                    progressDialog = null;
+                                                }
                                                 gotohomepage(context,variables.Staffs, null);
                                             }else {
+                                                if ((progressDialog != null) && progressDialog.isShowing()) {
+                                                    progressDialog.dismiss();
+                                                    progressDialog = null;
+                                                }
                                                 Toast.makeText(context, "Internet Connection failed, could not create your account", Toast.LENGTH_LONG).show();
                                             }
                                         }
