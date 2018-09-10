@@ -46,6 +46,7 @@
     </string-array>
 
     <string-array name="level">
+        <item>--- Click to select ---</item>
         <item>100</item>
         <item>200</item>
         <item>300</item>

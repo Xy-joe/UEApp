@@ -10,6 +10,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:visibility="gone"
             android:id="@+id/main1">
             <LinearLayout
                 android:layout_width="match_parent"
@@ -73,7 +74,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"
-            android:id="@+id/main2">
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="150dp"
+            android:padding="@dimen/activity_vertical_margin"
+            android:id="@+id/levellay">
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -82,17 +86,74 @@
                 android:id="@+id/selectdept"
                 android:text="Select Level"/>
             <Spinner
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:spinnerMode="dropdown"
                 android:layout_marginTop="10dp"
                 android:visibility="visible"
+                android:layout_below="@+id/selectdept"
                 android:entries="@array/level"
                 android:id="@+id/deptspinner"
-                android:layout_gravity="center"
-                android:textAlignment="center"
+
                 >
             </Spinner>
+
+            <Button
+                android:layout_width="200dp"
+                android:layout_height="40dp"
+                android:text="Finish"
+                android:background="@color/appcolor"
+                android:textColor="@color/white"
+                android:textAllCaps="false"
+                android:onClick="createStudent"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_below="@+id/deptspinner"
+                android:id="@+id/levelbtn"/>
         </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="150dp"
+        android:padding="@dimen/activity_vertical_margin"
+        android:id="@+id/officelay">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:visibility="visible"
+            android:id="@+id/selectPosition"
+            android:text="What Office do you occupy in your department"
+            android:textSize="18sp"
+            android:textAlignment="center"/>
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_below="@+id/selectPosition"
+            android:inputType="text"
+            android:textColor="@color/black"
+            android:hint="type here"
+            android:id="@+id/office"
+
+            >
+        </EditText>
+
+        <Button
+            android:layout_width="200dp"
+            android:layout_height="40dp"
+            android:text="Finish"
+            android:layout_centerHorizontal="true"
+            android:background="@color/appcolor"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_below="@+id/office"
+            android:textColor="@color/white"
+            android:textAllCaps="false"
+            android:onClick="CreateStaff"
+            android:visibility="gone"
+            android:id="@+id/officebtn"/>
+    </RelativeLayout>
 
 </RelativeLayout>

@@ -9,5 +9,6 @@
 .externalNativeBuild
 app/libs/
 src/debug/
-
+/.gitignore
+/app/src/release
 libs/

@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -23,6 +25,15 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.ByteArrayOutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import ng.schooln.ueapp.R;
 import ng.schooln.ueapp.models.StudentModel;
@@ -48,17 +59,17 @@ public class Controls {
     }
 
     public void Login(final Context context, String email, String password){
+        dbHelper = new DbHelper(auth, context);
         progressDialog = new ProgressDialog(context);
         progressDialog.setCancelable(false);
         progressDialog.setMessage(context.getResources().getString(R.string.pleasewait));
         if (Connectivity.isConnected(context)){
-            if (auth != null){
+            if (auth.getCurrentUser() != null){
                 progressDialog.show();
                 auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()){
-                            dbHelper = new DbHelper(auth, context);
                             dbHelper.studentref(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -179,8 +190,80 @@ public class Controls {
         context.startActivity(intent);
     }
 
-    public void createAccount(Context context, String student, String staff, Bitmap bitmap, String dept, String faculty, String level){
+    public void createAccount(final Context context, final String student, String staff, String picturepath, final String dept, final String faculty, final String level){
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setCancelable(false);
+        progressDialog.setMessage(context.getResources().getString(R.string.pleasewait));
         dbHelper = new DbHelper(auth, context);
+        if (Connectivity.isConnected(context)){
+            if (picturepath != null){
+                Bitmap bitmap = decodeSampledBitmapFromResource(picturepath, 500, 600);
+                Locale locale = new Locale("yyMMddHHmmss");
+
+                DateFormat df = new SimpleDateFormat("yyMMddHHmmss", locale);
+                Date dateobj = new Date();
+                final String mydownloadUrl = df.format(dateobj) + "_" + auth.getCurrentUser().getUid() + ".jpg";
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] data = baos.toByteArray();
+
+                UploadTask uploadTask = dbHelper.profilephoto(mydownloadUrl).putBytes(data);
+                uploadTask.addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Handle unsuccessful uploads
+                        if ((progressDialog != null) && progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                            progressDialog = null;
+                        }
+                        exception.printStackTrace();
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                        // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+                     final String imageurl = taskSnapshot.getMetadata().getPath();
+
+                        UserProfileChangeRequest userProfileChangeRequest = new UserProfileChangeRequest.Builder().setPhotoUri(Uri.parse(imageurl)).build();
+                        auth.getCurrentUser().updateProfile(userProfileChangeRequest).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                if (student != null){
+                                    final StudentModel studentModel = new StudentModel(auth.getCurrentUser().getDisplayName(), dept, level, imageurl, faculty);
+                                    dbHelper.studentref(auth.getCurrentUser().getUid()).setValue(studentModel).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()){
+                                                if ((progressDialog != null) && progressDialog.isShowing()) {
+                                                    progressDialog.dismiss();
+                                                    progressDialog = null;
+                                                }
+                                                gotohomepage(context,null,variables.Student);
+                                            }else {
+                                                if ((progressDialog != null) && progressDialog.isShowing()) {
+                                                    progressDialog.dismiss();
+                                                    progressDialog = null;
+                                                }
+                                                Toast.makeText(context, "Internet Connection failed, could not create your account", Toast.LENGTH_LONG).show();
+                                            }
+                                        }
+                                    });
+                                }else {
+                                    dbHelper.staffref(auth.getCurrentUser().getUid()).
+                                }
+
+                            }
+                        });
+
+
+                    }
+                });
+
+            }
+        }
+
         if (student != null){
             StudentModel studentModel = new StudentModel(auth.getCurrentUser().getDisplayName(), dept, level, auth.getCurrentUser().getPhotoUrl().toString(), faculty);
             dbHelper.studentref(auth.getCurrentUser().getUid()).setValue(studentModel);
@@ -229,5 +312,44 @@ public class Controls {
 
     public boolean isValidEmail(String email) {
         return Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    public static Bitmap decodeSampledBitmapFromResource(String pathname,
+                                                         int reqWidth, int reqHeight) {
+
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(pathname, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(pathname,options);
+    }
+
+    private static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
     }
 }

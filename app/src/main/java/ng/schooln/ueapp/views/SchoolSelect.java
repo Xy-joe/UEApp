@@ -23,6 +23,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.util.ArrayList;
 
 import ng.schooln.ueapp.R;
@@ -41,6 +44,7 @@ public class SchoolSelect extends AppCompatActivity implements AdapterView.OnIte
     int RESULT_LOAD_IMAGE=320;
     final private int REQUEST_CODE_ASK_PERMISSIONS = 322;
     String picturepath;
+    FirebaseAuth auth;
     Bitmap bitmap;
     ArrayAdapter<String> deptarray;
     private String[] deptarr;
@@ -54,6 +58,7 @@ public class SchoolSelect extends AppCompatActivity implements AdapterView.OnIte
 
     // This method is used to initialise all variables
     private void init(){
+        auth = FirebaseAuth.getInstance();
         spinner = findViewById(R.id.spinner);
         deptspinner = findViewById(R.id.deptspinner);
         selectdept  = findViewById(R.id.selectdept);
@@ -67,12 +72,23 @@ public class SchoolSelect extends AppCompatActivity implements AdapterView.OnIte
         spinner.setOnItemSelectedListener(this);
         deptspinner.setOnItemSelectedListener(this);
 
+        FirebaseUser user = auth.getCurrentUser();
+        if (user != null){
+            if (user.getPhotoUrl() != null){
+                cameralay.setVisibility(View.GONE);
+                deptlay.setVisibility(View.VISIBLE);
+            }else {
+                cameralay.setVisibility(View.VISIBLE);
+                deptlay.setVisibility(View.GONE);
+            }
+        }
     }
 
     public void openusertype(View v){
         Intent intent = new Intent(SchoolSelect.this, MainActivity.class);
         intent.putExtra("faculty", spinner.getSelectedItem().toString());
         intent.putExtra("dept", deptspinner.getSelectedItem().toString());
+        intent.putExtra("path", picturepath);
         startActivity(intent);
     }
 
@@ -83,27 +99,29 @@ public class SchoolSelect extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        if (view == spinner) {
+        if (adapterView == spinner) {
             if (spinner.getSelectedItemPosition() != 0) {
-
+                deptarr = null;
                 if (spinner.getSelectedItemPosition() == 1) {
                     deptarr = getResources().getStringArray(R.array.Saat);
                 } else if (spinner.getSelectedItemPosition() == 4) {
                     deptarr = getResources().getStringArray(R.array.Sops);
+                }else {
+                    deptarr = null;
                 }
-
-                deptarray = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, deptarr);
-                deptspinner.setAdapter(deptarray);
-                deptspinner.setVisibility(View.VISIBLE);
-                selectdept.setVisibility(View.VISIBLE);
-
+                if (deptarr != null){
+                    deptarray = new ArrayAdapter<String>(SchoolSelect.this, android.R.layout.simple_spinner_dropdown_item, deptarr);
+                    deptspinner.setAdapter(deptarray);
+                    deptspinner.setVisibility(View.VISIBLE);
+                    selectdept.setVisibility(View.VISIBLE);
+                }
 
             } else {
                 deptspinner.setVisibility(View.GONE);
                 schoolnext.setVisibility(View.GONE);
                 selectdept.setVisibility(View.GONE);
             }
-        } else if (view == deptspinner){
+        } else if (adapterView == deptspinner){
             schoolnext.setVisibility(View.VISIBLE);
         }
     }
@@ -180,7 +198,8 @@ public class SchoolSelect extends AppCompatActivity implements AdapterView.OnIte
         clicktxt.setVisibility(View.GONE);
         userimage.setImageBitmap(bitmap);
         cameranext.setVisibility(View.VISIBLE);
-
     }
+
+
 
 }

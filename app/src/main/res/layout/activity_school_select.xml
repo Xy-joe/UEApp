@@ -29,7 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/cameralay"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:orientation="vertical">
                 <RelativeLayout
                     android:layout_width="wrap_content"
@@ -80,7 +80,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/deptlay"
-                android:visibility="visible"
+                android:visibility="gone"
                 android:orientation="vertical">
 
                 <TextView

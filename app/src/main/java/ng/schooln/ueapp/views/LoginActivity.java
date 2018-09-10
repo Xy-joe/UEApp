@@ -1,45 +1,25 @@
 package ng.schooln.ueapp.views;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
+
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
 
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
-
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
+
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ng.schooln.ueapp.R;
 import ng.schooln.ueapp.controllers.Controls;
-
-import static android.Manifest.permission.READ_CONTACTS;
 
 /**
  * A login screen that offers login via email/password.
@@ -61,7 +41,7 @@ public class LoginActivity extends AppCompatActivity  {
         auth = FirebaseAuth.getInstance();
 
         mPasswordView = findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+       /* mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
@@ -71,6 +51,7 @@ public class LoginActivity extends AppCompatActivity  {
                 return false;
             }
         });
+        */
 
         FloatingActionButton mEmailSignInButton = findViewById(R.id.fab);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
@@ -138,10 +119,11 @@ public class LoginActivity extends AppCompatActivity  {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
-        } else {
+            return;
+        }
 
             new Controls(auth).Login(LoginActivity.this, mEmailView.getText().toString(), mPasswordView.getText().toString());
-        }
+
     }
 
     private boolean isEmailValid(String email) {
