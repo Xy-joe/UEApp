@@ -1,9 +1,11 @@
 package ng.schooln.ueapp.views;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.support.annotation.IntRange;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -16,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import ng.schooln.ueapp.R;
 import ng.schooln.ueapp.controllers.Controls;
 import ng.schooln.ueapp.models.StudentModel;
+import ng.schooln.ueapp.utils.TextWatcherAdapter;
 import ng.schooln.ueapp.utils.Variables;
 
 public class MainActivity extends AppCompatActivity {
@@ -40,14 +43,18 @@ private Button levelbtn, officebtn;
     }
 
     private void init(){
+        Typeface custom = Typeface.createFromAsset(getAssets(),  "fonts/Lato-Regular.ttf");
         office = findViewById(R.id.office);
         officebtn = findViewById(R.id.officebtn);
         officelay = findViewById(R.id.officelay);
         levelspinner = findViewById(R.id.deptspinner);
         levellay = findViewById(R.id.levellay);
+        levelbtn = findViewById(R.id.levelbtn);
         dept = getIntent().getStringExtra("dept");
         faculty = getIntent().getStringExtra("faculty");
         usertypelay = findViewById(R.id.main1);
+        office.setTypeface(custom);
+        levelbtn.setTypeface(custom);
         levelspinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -64,6 +71,16 @@ private Button levelbtn, officebtn;
 
             }
         });
+        office.addTextChangedListener(new TextWatcherAdapter() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.length() > 0){
+                    officebtn.setVisibility(View.VISIBLE);
+                }else {
+                    officebtn.setVisibility(View.GONE);
+                }
+            }
+        });
 
     }
 
@@ -75,22 +92,35 @@ private Button levelbtn, officebtn;
     }
 
     public void Staff(View v){
-        Intent intent = new Intent(this, SchoolSelect.class);
-        intent.putExtra(variables.Staffs, variables.Staffs);
-        if (picturepath != null){
-            intent.putExtra("path", picturepath);
-        }
-
-        startActivity(intent);
+        usertypelay.setVisibility(View.GONE);
+        levellay.setVisibility(View.GONE);
+        officelay.setVisibility(View.VISIBLE);
     }
     public void createStudent(View v){
         if (auth.getCurrentUser() != null){
-            new Controls(auth).createAccount(this,variables.Student,null,picturepath,dept,faculty,levelspinner.getSelectedItem().toString());
+            new Controls(auth).createAccount(this,null,picturepath,dept,faculty,levelspinner.getSelectedItem().toString());
         }
 
     }
 
     public void CreateStaff(View v){
+        if (auth.getCurrentUser() != null){
+            new Controls(auth).createAccount(this,office.getText().toString(),picturepath,dept,faculty,levelspinner.getSelectedItem().toString());
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (officelay.getVisibility() == View.VISIBLE){
+            usertypelay.setVisibility(View.VISIBLE);
+            levellay.setVisibility(View.GONE);
+            officelay.setVisibility(View.GONE);
+        }
+        if (levellay.getVisibility() == View.VISIBLE){
+            usertypelay.setVisibility(View.VISIBLE);
+            levellay.setVisibility(View.GONE);
+            officelay.setVisibility(View.GONE);
+        }
 
     }
 }

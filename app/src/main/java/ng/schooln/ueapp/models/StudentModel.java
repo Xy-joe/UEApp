@@ -7,13 +7,30 @@ import java.io.Serializable;
  */
 
 public class StudentModel implements Serializable {
-    private String nam, dept, lvl, img, schl;
+    private String id,nam, dept, lvl, img, schl;
 
-    public StudentModel(String nam, String dept, String lvl, String img, String schl) {
+    public String getSchl() {
+        return schl;
+    }
+
+    public void setSchl(String schl) {
+        this.schl = schl;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public StudentModel(String id, String nam, String dept, String lvl, String img, String schl) {
         this.nam = nam;
         this.dept = dept;
         this.schl = schl;
         this.lvl = lvl;
+        this.id = id;
         this.img = img;
     }
 

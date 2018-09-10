@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import ng.schooln.ueapp.R;
+import ng.schooln.ueapp.models.StaffModel;
 import ng.schooln.ueapp.models.StudentModel;
 import ng.schooln.ueapp.utils.Connectivity;
 import ng.schooln.ueapp.utils.Variables;
@@ -190,7 +191,7 @@ public class Controls {
         context.startActivity(intent);
     }
 
-    public void createAccount(final Context context, final String student, String staff, String picturepath, final String dept, final String faculty, final String level){
+    public void createAccount(final Context context, final String office, String picturepath, final String dept, final String faculty, final String level){
         progressDialog = new ProgressDialog(context);
         progressDialog.setCancelable(false);
         progressDialog.setMessage(context.getResources().getString(R.string.pleasewait));
@@ -230,8 +231,8 @@ public class Controls {
                         auth.getCurrentUser().updateProfile(userProfileChangeRequest).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                if (student != null){
-                                    final StudentModel studentModel = new StudentModel(auth.getCurrentUser().getDisplayName(), dept, level, imageurl, faculty);
+                                if (office == null){
+                                    final StudentModel studentModel = new StudentModel(auth.getCurrentUser().getUid(),auth.getCurrentUser().getDisplayName(), dept, level, imageurl, faculty);
                                     dbHelper.studentref(auth.getCurrentUser().getUid()).setValue(studentModel).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
@@ -251,7 +252,17 @@ public class Controls {
                                         }
                                     });
                                 }else {
-                                    dbHelper.staffref(auth.getCurrentUser().getUid()).
+                                    StaffModel staffModel = new StaffModel(auth.getCurrentUser().getUid(), auth.getCurrentUser().getDisplayName(), dept,imageurl, faculty, office);
+                                    dbHelper.staffref(auth.getCurrentUser().getUid()).setValue(staffModel).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()){
+                                                gotohomepage(context,variables.Staffs, null);
+                                            }else {
+                                                Toast.makeText(context, "Internet Connection failed, could not create your account", Toast.LENGTH_LONG).show();
+                                            }
+                                        }
+                                    });
                                 }
 
                             }
@@ -262,11 +273,9 @@ public class Controls {
                 });
 
             }
-        }
+        }else {
+            Toast.makeText(context, "Internet Connection failed", Toast.LENGTH_LONG).show();
 
-        if (student != null){
-            StudentModel studentModel = new StudentModel(auth.getCurrentUser().getDisplayName(), dept, level, auth.getCurrentUser().getPhotoUrl().toString(), faculty);
-            dbHelper.studentref(auth.getCurrentUser().getUid()).setValue(studentModel);
         }
     }
     public void recoverPpassword(String email, final Context context){

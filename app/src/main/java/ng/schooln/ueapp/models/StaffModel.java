@@ -6,18 +6,43 @@ import java.io.Serializable;
  * Created by xyjoe on 9/8/18.
  */
 
-public class StudentModel implements Serializable {
-    private String nam, dept, lvl, img, schl;
+public class StaffModel implements Serializable {
+    private String id, nam, dept, img, schl, office;
 
-    public StudentModel(String nam, String dept, String lvl, String img, String schl) {
+    public String getSchl() {
+        return schl;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setSchl(String schl) {
+        this.schl = schl;
+    }
+
+    public String getOffice() {
+        return office;
+    }
+
+    public void setOffice(String office) {
+        this.office = office;
+    }
+
+    public StaffModel(String id, String nam, String dept,  String img, String schl, String office) {
         this.nam = nam;
+        this.office = office;
         this.dept = dept;
         this.schl = schl;
-        this.lvl = lvl;
+        this.id = id;
         this.img = img;
     }
 
-    public StudentModel() {
+    public StaffModel() {
     }
 
     public String getNam() {
@@ -34,14 +59,6 @@ public class StudentModel implements Serializable {
 
     public void setDept(String dept) {
         this.dept = dept;
-    }
-
-    public String getLvl() {
-        return lvl;
-    }
-
-    public void setLvl(String lvl) {
-        this.lvl = lvl;
     }
 
     public String getImg() {
