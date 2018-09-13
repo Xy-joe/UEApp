@@ -36,4 +36,11 @@ public class DbHelper {
         return FirebaseStorage.getInstance().getReferenceFromUrl("gs://test-projects-5eebd.appspot.com").child("UEApp profile photo/"+ id);
     }
 
+    public DatabaseReference UnverifiedStaffs(String uid){
+        return FirebaseDatabase.getInstance().getReference().child(variables.Appname).child(variables.Users).child(variables.Unverifier).child(uid);
+    }
+
+    public DatabaseReference VerifiedStaffs(String uid){
+        return FirebaseDatabase.getInstance().getReference().child(variables.Appname).child(variables.Users).child(variables.Verified).child(uid);
+    }
 }

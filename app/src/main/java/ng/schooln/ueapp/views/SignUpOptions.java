@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -21,6 +22,7 @@ public class SignUpOptions extends AppCompatActivity {
     private Variables variables;
     FirebaseAuth firebaseAuth;
     FirebaseAuth.AuthStateListener mauthStateListener;
+    private LinearLayout accountotion;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +30,7 @@ public class SignUpOptions extends AppCompatActivity {
         setContentView(R.layout.activity_sign_up_options);
 
         variables = new Variables();
+        accountotion = findViewById(R.id.accountoption);
 
          mauthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -41,13 +44,16 @@ public class SignUpOptions extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseAuth.addAuthStateListener(mauthStateListener);
 
+
     }
     public void createaccount(View v){
         startActivity(new Intent(this, Register.class));
     }
+
     public void Login(View v){
         startActivity(new Intent(this, LoginActivity.class));
     }
+
     private ValueEventListener checkstudentcredentials(final FirebaseAuth auth, final FirebaseAuth.AuthStateListener authStateListener){
         return new ValueEventListener() {
             @Override
@@ -65,6 +71,7 @@ public class SignUpOptions extends AppCompatActivity {
             }
         };
     }
+
     private ValueEventListener checkStaffCredentials(final FirebaseAuth auth, final FirebaseAuth.AuthStateListener authStateListener){
         return  new ValueEventListener() {
             @Override
@@ -73,6 +80,7 @@ public class SignUpOptions extends AppCompatActivity {
                     new Controls(auth).gotohomepage(SignUpOptions.this, variables.Staffs, null);
                 }else {
                     auth.removeAuthStateListener(authStateListener);
+                    accountotion.setVisibility(View.VISIBLE);
                 }
 
             }

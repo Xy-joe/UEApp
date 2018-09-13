@@ -78,15 +78,69 @@ public class Controls {
                                         progressDialog.dismiss();
                                         gotohomepage(context, null, variables.Student);
                                     }else {
-                                        dbHelper.staffref(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                                        dbHelper.UnverifiedStaffs(auth.getCurrentUser().getUid()).getRef().addValueEventListener(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                                 if (dataSnapshot.getValue() != null){
                                                     progressDialog.dismiss();
-                                                    gotohomepage(context,variables.Staffs, null);
+                                                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                                                    builder.setCancelable(false);
+                                                    builder.setTitle("Unverified Account");
+                                                    builder.setMessage(context.getString(R.string.unconfirmedaccount));
+                                                    builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                                            Intent intent = new Intent(context, LoginActivity.class);
+                                                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                            context.startActivity(intent);
+                                                        }
+                                                    });
+                                                    AlertDialog alert = builder.create();
+                                                    alert.show();
                                                 }else {
-                                                    progressDialog.dismiss();
-                                                    context.startActivity(new Intent(context, SchoolSelect.class));
+                                                    dbHelper.VerifiedStaffs(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                            if (dataSnapshot.getValue() != null){
+                                                                progressDialog.dismiss();
+                                                                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                                                                builder.setCancelable(false);
+                                                                builder.setTitle("Verified Account");
+                                                                builder.setMessage(context.getString(R.string.sucessregistext));
+                                                                builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                                                    @Override
+                                                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                                                        finaliseStaff(context, progressDialog);
+                                                                    }
+                                                                });
+                                                                AlertDialog alert = builder.create();
+                                                                alert.show();
+                                                            }else {
+                                                                dbHelper.staffref(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                                                                    @Override
+                                                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                                        if (dataSnapshot.getValue() != null){
+                                                                            progressDialog.dismiss();
+                                                                            gotohomepage(context,variables.Staffs, null);
+                                                                        }else {
+                                                                            progressDialog.dismiss();
+                                                                            context.startActivity(new Intent(context, SchoolSelect.class));
+                                                                        }
+                                                                    }
+
+                                                                    @Override
+                                                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                                                    }
+                                                                });
+                                                            }
+                                                        }
+
+                                                        @Override
+                                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                                        }
+                                                    });
                                                 }
                                             }
 
@@ -95,6 +149,7 @@ public class Controls {
 
                                             }
                                         });
+
                                     }
                                 }
 
@@ -124,6 +179,54 @@ public class Controls {
             Toast.makeText(context, "Internet Connection failed", Toast.LENGTH_LONG).show();
 
         }
+
+    }
+    //Complete the creation on verified staff Account
+    private void finaliseStaff(final Context context, final ProgressDialog progressDialog){
+        progressDialog.show();
+        dbHelper = new DbHelper(auth,context);
+       dbHelper.UnverifiedStaffs(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+           @Override
+           public void onDataChange(@NonNull final DataSnapshot dataSnapshot) {
+               if (dataSnapshot.getValue() != null){
+                   StaffModel staffModel = dataSnapshot.getValue(StaffModel.class);
+                   dbHelper.staffref(auth.getCurrentUser().getUid()).setValue(staffModel).addOnCompleteListener(new OnCompleteListener<Void>() {
+                       @Override
+                       public void onComplete(@NonNull Task<Void> task) {
+                           if (task.isSuccessful()){
+                               dbHelper.UnverifiedStaffs(auth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                   @Override
+                                   public void onSuccess(Void aVoid) {
+                                       if (dataSnapshot.getValue() != null){
+                                           dbHelper.VerifiedStaffs(auth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                               @Override
+                                               public void onSuccess(Void aVoid) {
+                                                   if ((progressDialog != null) && progressDialog.isShowing()) {
+                                                       progressDialog.dismiss();
+                                                   }
+                                                   gotohomepage(context,variables.Staffs, null);
+                                               }
+                                           });
+                                       }
+                                   }
+                               });
+
+                           }else {
+                               if ((progressDialog != null) && progressDialog.isShowing()) {
+                                   progressDialog.dismiss();
+                               }
+                               Toast.makeText(context, "Internet Connection failed, could not create your account", Toast.LENGTH_LONG).show();
+                           }
+                       }
+                   });
+               }
+           }
+
+           @Override
+           public void onCancelled(@NonNull DatabaseError databaseError) {
+
+           }
+       });
 
     }
 
@@ -254,29 +357,18 @@ public class Controls {
                                     });
                                 }else {
                                     StaffModel staffModel = new StaffModel(auth.getCurrentUser().getUid(), auth.getCurrentUser().getDisplayName(), dept,imageurl, faculty, office);
-                                    dbHelper.staffref(auth.getCurrentUser().getUid()).setValue(staffModel).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    dbHelper.UnverifiedStaffs(auth.getCurrentUser().getUid()).setValue(staffModel).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()){
-                                                if ((progressDialog != null) && progressDialog.isShowing()) {
-                                                    progressDialog.dismiss();
-                                                    progressDialog = null;
-                                                }
-                                                gotohomepage(context,variables.Staffs, null);
-                                            }else {
-                                                if ((progressDialog != null) && progressDialog.isShowing()) {
-                                                    progressDialog.dismiss();
-                                                    progressDialog = null;
-                                                }
-                                                Toast.makeText(context, "Internet Connection failed, could not create your account", Toast.LENGTH_LONG).show();
+                                                showConfirmationNotice(context, auth.getCurrentUser().getDisplayName());
                                             }
                                         }
                                     });
-                                }
 
+                                }
                             }
                         });
-
 
                     }
                 });
@@ -284,9 +376,26 @@ public class Controls {
             }
         }else {
             Toast.makeText(context, "Internet Connection failed", Toast.LENGTH_LONG).show();
-
         }
     }
+
+    private void showConfirmationNotice(final Context context, String uname) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setCancelable(false);
+        builder.setTitle("Registration Notice!");
+        builder.setMessage(uname+", "+context.getString(R.string.call_later));
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Intent intent = new Intent(context, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
     public void recoverPpassword(String email, final Context context){
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         progressDialog = new ProgressDialog(context);

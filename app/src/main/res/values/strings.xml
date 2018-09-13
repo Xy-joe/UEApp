@@ -25,6 +25,9 @@
     <string name="pleasewait">Please wait...</string>
     <string name="send">Send</string>
     <string name="fpass">Forgot password ?</string>
+    <string name="call_later">we are trying to validate your position in your department, you will receive a confirmation mail in 24hrs, after which you can log into the App</string>
+    <string name="sucessregistext">You position has been Confirmed.\\n WellCome to UEApp</string>
+    <string name="unconfirmedaccount">Sorry your position has not been verified yet. Please try again later</string>
     <string-array name="faculty">
         <item>--- Select your faculty ---</item>
         <item>SAAT</item>

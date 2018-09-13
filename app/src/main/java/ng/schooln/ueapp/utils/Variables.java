@@ -9,7 +9,9 @@ public class Variables {
     public String Student = "Student";
     public String Appname = "UEApp";
     public String Users = "Users";
-
+    public String Verified = "Ver";
+    public String Unverifier = "Unv";
+    public String ID = "id";
 
 
 }
