@@ -15,10 +15,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,6 +29,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.squareup.picasso.Picasso;
 
 import ng.schooln.ueapp.R;
 
@@ -41,8 +45,11 @@ public class Homepage extends FragmentActivity implements OnMapReadyCallback, Go
     private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
+    private  LocationRequest locationRequest;
     private Boolean mLocationPermissionsGranted = false;
+    private Location mlocation;
     private static final String TAG = "Homepage";
+    FirebaseAuth auth;
 
 
     @Override
@@ -68,14 +75,16 @@ public class Homepage extends FragmentActivity implements OnMapReadyCallback, Go
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
-
         mMap = googleMap;
         if (Build.VERSION.SDK_INT >= 23) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]
+                                {Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+                return;
+            }
+        }else {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                     != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[]
@@ -112,24 +121,25 @@ public class Homepage extends FragmentActivity implements OnMapReadyCallback, Go
         Log.d(TAG, "getLocationPermission: getting location permissions");
         String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION};
-
-        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                    COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                mLocationPermissionsGranted = true;
-                initMap();
+                    FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                        COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    mLocationPermissionsGranted = true;
+                    initMap();
 
+                } else {
+                    ActivityCompat.requestPermissions(this,
+                            permissions,
+                            LOCATION_PERMISSION_REQUEST_CODE);
+                }
             } else {
                 ActivityCompat.requestPermissions(this,
                         permissions,
                         LOCATION_PERMISSION_REQUEST_CODE);
             }
-        } else {
-            ActivityCompat.requestPermissions(this,
-                    permissions,
-                    LOCATION_PERMISSION_REQUEST_CODE);
-        }
+
+
     }
 
     private void initMap() {
@@ -146,6 +156,21 @@ public class Homepage extends FragmentActivity implements OnMapReadyCallback, Go
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        locationRequest = new LocationRequest();
+        locationRequest.setInterval(1000);
+        locationRequest.setFastestInterval(1000);
+        // Draw back is that this accuracy draws down a lot of battery
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        if (Build.VERSION.SDK_INT >= 23 ){
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
+                    PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]
+                                {Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+                return;
+            }
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
 
     }
 
@@ -162,6 +187,11 @@ public class Homepage extends FragmentActivity implements OnMapReadyCallback, Go
     @Override
     public void onLocationChanged(Location location) {
 
+        location  = mlocation;
+
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(13f));
     }
 
     @Override
@@ -175,8 +205,12 @@ public class Homepage extends FragmentActivity implements OnMapReadyCallback, Go
     }
 
     private void initViews(){
+        auth = FirebaseAuth.getInstance();
         alertbtn = findViewById(R.id.fab);
         userimg = findViewById(R.id.userimg);
         option = findViewById(R.id.option);
+        if (auth.getCurrentUser() != null){
+            Glide.with(this).load(String.valueOf(auth.getCurrentUser().getPhotoUrl())).into(userimg);
+        }
     }
 }

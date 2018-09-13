@@ -29,7 +29,7 @@ public class DbHelper {
     }
 
     public DatabaseReference staffref(String uid){
-        return FirebaseDatabase.getInstance().getReference().child(variables.Appname).child(variables.Users).child(variables.Student).child(uid);
+        return FirebaseDatabase.getInstance().getReference().child(variables.Appname).child(variables.Users).child(variables.Staffs).child(uid);
     }
 
     public StorageReference profilephoto(String id){

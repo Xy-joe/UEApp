@@ -20,6 +20,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
@@ -42,7 +43,6 @@ import ng.schooln.ueapp.utils.Connectivity;
 import ng.schooln.ueapp.utils.Variables;
 import ng.schooln.ueapp.views.Homepage;
 import ng.schooln.ueapp.views.LoginActivity;
-import ng.schooln.ueapp.views.MainActivity;
 import ng.schooln.ueapp.views.SchoolSelect;
 
 /**
@@ -65,7 +65,7 @@ public class Controls {
         progressDialog.setCancelable(false);
         progressDialog.setMessage(context.getResources().getString(R.string.pleasewait));
         if (Connectivity.isConnected(context)){
-            if (auth.getCurrentUser() != null){
+            if (auth != null){
                 progressDialog.show();
                 auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
@@ -78,43 +78,44 @@ public class Controls {
                                         progressDialog.dismiss();
                                         gotohomepage(context, null, variables.Student);
                                     }else {
-                                        dbHelper.UnverifiedStaffs(auth.getCurrentUser().getUid()).getRef().addValueEventListener(new ValueEventListener() {
+                                        dbHelper.VerifiedStaffs(auth.getCurrentUser().getUid()).getRef().addValueEventListener(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                                 if (dataSnapshot.getValue() != null){
                                                     progressDialog.dismiss();
                                                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
                                                     builder.setCancelable(false);
-                                                    builder.setTitle("Unverified Account");
-                                                    builder.setMessage(context.getString(R.string.unconfirmedaccount));
+                                                    builder.setTitle("Verified Account");
+                                                    builder.setMessage(context.getString(R.string.sucessregistext));
                                                     builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                                         @Override
                                                         public void onClick(DialogInterface dialogInterface, int i) {
-                                                            Intent intent = new Intent(context, LoginActivity.class);
-                                                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                            context.startActivity(intent);
+                                                            finaliseStaff(context, progressDialog);
                                                         }
                                                     });
                                                     AlertDialog alert = builder.create();
                                                     alert.show();
                                                 }else {
-                                                    dbHelper.VerifiedStaffs(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                                                    dbHelper.UnverifiedStaffs(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
                                                         @Override
                                                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                                             if (dataSnapshot.getValue() != null){
                                                                 progressDialog.dismiss();
                                                                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                                                                 builder.setCancelable(false);
-                                                                builder.setTitle("Verified Account");
-                                                                builder.setMessage(context.getString(R.string.sucessregistext));
+                                                                builder.setTitle("Unverified Account");
+                                                                builder.setMessage(context.getString(R.string.unconfirmedaccount));
                                                                 builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                                                     @Override
                                                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                                                        finaliseStaff(context, progressDialog);
+                                                                        Intent intent = new Intent(context, LoginActivity.class);
+                                                                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                                        context.startActivity(intent);
                                                                     }
                                                                 });
                                                                 AlertDialog alert = builder.create();
                                                                 alert.show();
+
                                                             }else {
                                                                 dbHelper.staffref(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
                                                                     @Override
@@ -167,7 +168,7 @@ public class Controls {
                         if (e instanceof FirebaseAuthUserCollisionException) {
                             Toast.makeText(context, "A user with this email already exists", Toast.LENGTH_LONG).show();
                         } else if ( e instanceof FirebaseAuthInvalidCredentialsException) {
-                            Toast.makeText(context, "The email you entered does not exist", Toast.LENGTH_LONG).show();
+                            Toast.makeText(context, "The email or password you entered is incorrect", Toast.LENGTH_LONG).show();
                         }else {
                             Toast.makeText(context, "Invalid email or password", Toast.LENGTH_LONG).show();
                         }
@@ -335,44 +336,15 @@ public class Controls {
                         auth.getCurrentUser().updateProfile(userProfileChangeRequest).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                if (office == null){
-                                    final StudentModel studentModel = new StudentModel(auth.getCurrentUser().getUid(),auth.getCurrentUser().getDisplayName(), dept, level, imageurl, faculty);
-                                    dbHelper.studentref(auth.getCurrentUser().getUid()).setValue(studentModel).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()){
-                                                if ((progressDialog != null) && progressDialog.isShowing()) {
-                                                    progressDialog.dismiss();
-                                                    progressDialog = null;
-                                                }
-                                                gotohomepage(context,null,variables.Student);
-                                            }else {
-                                                if ((progressDialog != null) && progressDialog.isShowing()) {
-                                                    progressDialog.dismiss();
-                                                    progressDialog = null;
-                                                }
-                                                Toast.makeText(context, "Internet Connection failed, could not create your account", Toast.LENGTH_LONG).show();
-                                            }
-                                        }
-                                    });
-                                }else {
-                                    StaffModel staffModel = new StaffModel(auth.getCurrentUser().getUid(), auth.getCurrentUser().getDisplayName(), dept,imageurl, faculty, office);
-                                    dbHelper.UnverifiedStaffs(auth.getCurrentUser().getUid()).setValue(staffModel).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()){
-                                                showConfirmationNotice(context, auth.getCurrentUser().getDisplayName());
-                                            }
-                                        }
-                                    });
-
-                                }
+                                proceed(office,context,dept,faculty,level);
                             }
                         });
 
                     }
                 });
 
+            }else {
+                proceed(office,context,dept,faculty,level);
             }
         }else {
             Toast.makeText(context, "Internet Connection failed", Toast.LENGTH_LONG).show();
@@ -396,6 +368,45 @@ public class Controls {
         alert.show();
     }
 
+    private void proceed(String office, final Context context, String dept,String faculty, String level){
+        if (office == null){
+            final StudentModel studentModel = new StudentModel(auth.getCurrentUser().getUid(),auth.getCurrentUser().getDisplayName(), dept, level, String.valueOf(auth.getCurrentUser().getPhotoUrl()), faculty);
+            dbHelper.studentref(auth.getCurrentUser().getUid()).setValue(studentModel).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()){
+                        if ((progressDialog != null) && progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                            progressDialog = null;
+                        }
+                        gotohomepage(context,null,variables.Student);
+                    }else {
+                        if ((progressDialog != null) && progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                            progressDialog = null;
+                        }
+                        Toast.makeText(context, "Internet Connection failed, could not create your account", Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+        }else {
+            StaffModel staffModel = new StaffModel(auth.getCurrentUser().getUid(), auth.getCurrentUser().getDisplayName(), dept,String.valueOf(auth.getCurrentUser().getPhotoUrl()), faculty, office);
+            dbHelper.UnverifiedStaffs(auth.getCurrentUser().getUid()).setValue(staffModel).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()){
+                        if ((progressDialog != null) && progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                            progressDialog = null;
+                        }
+                        showConfirmationNotice(context, auth.getCurrentUser().getDisplayName());
+                    }
+                }
+            });
+
+        }
+    }
+
     public void recoverPpassword(String email, final Context context){
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         progressDialog = new ProgressDialog(context);
@@ -403,38 +414,54 @@ public class Controls {
         progressDialog.setMessage(context.getResources().getString(R.string.pleasewait));
         builder.setCancelable(false);
         progressDialog.show();
-        auth.sendPasswordResetEmail(email).addOnFailureListener(new OnFailureListener() {
-          @Override
-          public void onFailure(@NonNull Exception e) {
-              progressDialog.dismiss();
-              if (e instanceof FirebaseAuthUserCollisionException) {
-                  Toast.makeText(context, "A user with this email already exists", Toast.LENGTH_LONG).show();
-              } else if ( e instanceof FirebaseAuthInvalidCredentialsException) {
-                  Toast.makeText(context, "The email you entered does not exist", Toast.LENGTH_LONG).show();
-              }else {
-                  Toast.makeText(context, "Invalid email or password", Toast.LENGTH_LONG).show();
-              }
-              e.printStackTrace();
-          }
-      }).addOnSuccessListener(new OnSuccessListener<Void>() {
-          @Override
-          public void onSuccess(Void aVoid) {
-              progressDialog.dismiss();
-              builder.setTitle("Done");
-              builder.setMessage("Recovery link sent Successfully");
-              builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                  @Override
-                  public void onClick(DialogInterface dialogInterface, int i) {
-                      Intent intent = new Intent(context, LoginActivity.class);
-                      intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                      context.startActivity(intent);
-                  }
-              });
-              AlertDialog alert = builder.create();
-              alert.show();
+        Toast.makeText(context, email, Toast.LENGTH_LONG).show();
+        if (Connectivity.isConnected(context)){
+            auth.sendPasswordResetEmail(email).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    progressDialog.dismiss();
+                    if (e instanceof FirebaseAuthUserCollisionException) {
+                        Toast.makeText(context, "A user with this email already exists", Toast.LENGTH_LONG).show();
+                    } else if ( e instanceof FirebaseAuthInvalidCredentialsException) {
+                        Toast.makeText(context, "The email you entered does not exist", Toast.LENGTH_LONG).show();
+                    }else if (e instanceof FirebaseAuthInvalidUserException) {
+                        Toast.makeText(context, "There is no account for the email you entered ", Toast.LENGTH_LONG).show();
+                    }
+                      else     {
+                            Toast.makeText(context, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    e.printStackTrace();
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()){
+                        progressDialog.dismiss();
+                        builder.setTitle("Done");
+                        builder.setMessage("Recovery link sent Successfully");
+                        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Intent intent = new Intent(context, LoginActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                context.startActivity(intent);
+                            }
+                        });
+                        AlertDialog alert = builder.create();
+                        alert.show();
+                    }
+                    else {
+                        Toast.makeText(context, "Incorrect email or password", Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+        }else {
+            progressDialog.dismiss();
+            Toast.makeText(context, "Internet Connection failed", Toast.LENGTH_LONG).show();
 
-          }
-      });
+
+        }
+
     }
 
     public boolean isValidEmail(String email) {

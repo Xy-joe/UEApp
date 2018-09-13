@@ -31,19 +31,18 @@ public class SignUpOptions extends AppCompatActivity {
 
         variables = new Variables();
         accountotion = findViewById(R.id.accountoption);
-
+        firebaseAuth = FirebaseAuth.getInstance();
          mauthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if (firebaseAuth.getCurrentUser() != null){
 
                     new DbHelper(firebaseAuth, SignUpOptions.this).studentref(firebaseAuth.getCurrentUser().getUid()).addValueEventListener(checkstudentcredentials(firebaseAuth, mauthStateListener));
+                }else {
+                    accountotion.setVisibility(View.VISIBLE);
                 }
             }
         };
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseAuth.addAuthStateListener(mauthStateListener);
-
 
     }
     public void createaccount(View v){
@@ -102,5 +101,13 @@ public class SignUpOptions extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mauthStateListener != null && firebaseAuth != null){
+            firebaseAuth.addAuthStateListener(mauthStateListener);
+        }
     }
 }

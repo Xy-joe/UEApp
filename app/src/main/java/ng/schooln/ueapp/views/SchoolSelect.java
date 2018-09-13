@@ -47,7 +47,9 @@ public class SchoolSelect extends AppCompatActivity implements AdapterView.OnIte
     FirebaseAuth auth;
     Bitmap bitmap;
     ArrayAdapter<String> deptarray;
-    private String[] deptarr;
+    String deptarr[];
+    private ArrayList<String> strings = new ArrayList<>();
+    String[] agg;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -100,26 +102,23 @@ public class SchoolSelect extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         if (adapterView == spinner) {
+            deptarr = new String[0];
+            strings.clear();
             if (spinner.getSelectedItemPosition() != 0) {
-                deptarr = null;
                 if (spinner.getSelectedItemPosition() == 1) {
                     deptarr = getResources().getStringArray(R.array.Saat);
-                } else if (spinner.getSelectedItemPosition() == 4) {
-                    deptarr = getResources().getStringArray(R.array.Sops);
-                }else {
-                    deptarr = null;
+                    loadDept(strings, deptarr);
                 }
-                if (deptarr != null){
-                    deptarray = new ArrayAdapter<String>(SchoolSelect.this, android.R.layout.simple_spinner_dropdown_item, deptarr);
-                    deptspinner.setAdapter(deptarray);
-                    deptspinner.setVisibility(View.VISIBLE);
-                    selectdept.setVisibility(View.VISIBLE);
+                else if (spinner.getSelectedItemPosition() == 5) {
+                    deptarr = getResources().getStringArray(R.array.Sops);
+                    loadDept(strings, deptarr);
+                }else {
+                    hide();
                 }
 
+
             } else {
-                deptspinner.setVisibility(View.GONE);
-                schoolnext.setVisibility(View.GONE);
-                selectdept.setVisibility(View.GONE);
+               hide();
             }
         } else if (adapterView == deptspinner){
             schoolnext.setVisibility(View.VISIBLE);
@@ -130,7 +129,27 @@ public class SchoolSelect extends AppCompatActivity implements AdapterView.OnIte
     public void onNothingSelected(AdapterView<?> adapterView) {
 
     }
+    private void hide(){
+        deptspinner.setVisibility(View.GONE);
+        schoolnext.setVisibility(View.GONE);
+        selectdept.setVisibility(View.GONE);
+    }
 
+    private void loadDept(ArrayList<String> arrayList, String[] data){
+        if (data != null ){
+            arrayList.clear();
+            for (int p = 0; p < data.length; p++){
+                arrayList.add(0,data[p]);
+            }
+            if (arrayList.size() > 0){
+                deptarray = new ArrayAdapter<String>(SchoolSelect.this, android.R.layout.simple_spinner_dropdown_item, arrayList);
+                deptspinner.setAdapter(deptarray);
+                deptspinner.setVisibility(View.VISIBLE);
+                selectdept.setVisibility(View.VISIBLE);
+            }
+
+        }
+    }
     public void openGallery(View v){
         CheckUserPermsions();
     }

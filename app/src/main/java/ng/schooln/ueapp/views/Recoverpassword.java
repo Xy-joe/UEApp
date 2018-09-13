@@ -77,8 +77,7 @@ public class Recoverpassword extends AppCompatActivity {
             return;
         }
         if (auth != null){
-
-            new Controls(auth).recoverPpassword(mEmailView.getText().toString(), this);
+             new Controls(auth).recoverPpassword(mEmailView.getText().toString(), this);
         }else {
             Toast.makeText(this, "Account does not exist", Toast.LENGTH_LONG).show();
         }
