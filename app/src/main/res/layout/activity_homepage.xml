@@ -1,4 +1,4 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:name="com.google.android.gms.maps.SupportMapFragment"
@@ -8,41 +8,209 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
-        <fragment
-            android:id="@+id/map"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
+        <android.support.v7.widget.Toolbar
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            />
+            android:layout_height="50dp"
+            android:id="@+id/toolbar"
+            map:titleTextColor="@color/white"
+            map:subtitleTextColor="@color/white"
+            android:background="@color/appcolor">
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:id="@+id/userimg"
-            android:layout_margin="5dp"
-            android:src="@mipmap/ic_launcher"/>
-
-
-        <ImageView
-            android:layout_width="wrap_content"
+        </android.support.v7.widget.Toolbar>
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/userimg"
-            android:id="@+id/option"
+            android:orientation="horizontal"
+            android:id="@+id/toplay"
+            android:layout_below="@+id/toolbar"
+            >
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:id="@+id/userimg"
+                android:scaleType="centerCrop"
+                android:layout_margin="5dp"
+                android:src="@raw/ddp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/userimg"
+                android:layout_toStartOf="@+id/option"
+                android:orientation="vertical">
+                <ng.schooln.ueapp.utils.TextviewFormat
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@+id/userimg"
+                    android:layout_toStartOf="@+id/option"
+                    android:textColor="@color/black"
+                    android:layout_below="@id/toolbar"
+                    android:id="@+id/name"
+                    android:layout_marginTop="5dp"
+                    android:textSize="16sp"
+                    />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/email"
+                    android:layout_marginTop="5dp"
+                    android:textSize="14sp"
+                    />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/dept"
+                    android:layout_marginTop="2dp"
+                    android:textSize="13sp"
+                    />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:visibility="gone"
+                android:id="@+id/option"
+                android:layout_margin="5dp"
+                android:src="@drawable/ic_moreop"/>
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/toplay"
             android:layout_marginTop="10dp"
-            android:layout_marginStart="@dimen/activity_vertical_margin"
-            android:src="@drawable/ic_option"/>
-
-        <android.support.design.widget.FloatingActionButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            map:fabSize="normal"
-            android:layout_centerInParent="true"
-            android:background="@color/alertbuttoncolor"
-            map:backgroundTint="@color/alertbuttoncolor"
-            android:src="@drawable/ic_alert"
-
+            android:text="@string/location"
+           android:layout_margin="5dp"
+            android:id="@+id/lohead"
+            android:textColor="@color/black"
+            android:textSize="15sp"
             />
+
+        <ng.schooln.ueapp.utils.TextviewFormat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/lohead"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:id="@+id/address"
+            android:textSize="14sp"
+            android:layout_marginBottom="5dp"
+            />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_below="@+id/address"
+            android:id="@+id/maplay"
+            android:layout_margin="2dp">
+            <fragment
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                />
+            <RelativeLayout
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/curvedbg"
+                android:id="@+id/alertbg"
+                android:layout_centerInParent="true">
+                <ImageView
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:id="@+id/fab"
+                    android:layout_alignParentStart="true"
+                    android:src="@raw/btn"
+                    />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:id="@+id/alerttex"
+                    android:layout_toEndOf="@+id/fab"
+                    android:layout_centerVertical="true"
+                    android:text="@string/alrtno"/>
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+  <RelativeLayout
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:layout_marginTop="300dp"
+    android:background="@android:color/transparent"
+      android:padding="3dp">
+      <RelativeLayout
+          android:layout_width="match_parent"
+          android:id="@+id/historylay"
+          android:layout_marginTop="100dp"
+          android:visibility="visible"
+          android:layout_height="match_parent">
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="@string/recent"
+              android:textSize="16sp"
+              android:id="@+id/hishead"
+              android:textColor="@color/black"
+              />
+
+          <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="@string/nohistory"
+              android:textSize="16sp"
+              android:id="@+id/nohis"
+              android:layout_below="@+id/hishead"
+              android:textAlignment="center"
+              android:textColor="@color/grey"
+              />
+
+          <android.support.v7.widget.RecyclerView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_below="@+id/hishead"
+              android:visibility="gone"
+              android:id="@+id/historyrecy"
+              android:layout_marginTop="10dp">
+
+          </android.support.v7.widget.RecyclerView>
+
+      </RelativeLayout>
+
+      <RelativeLayout
+          android:layout_width="match_parent"
+          android:id="@+id/newalertlay"
+          android:background="@color/white"
+          android:layout_height="match_parent"
+          android:visibility="gone">
+
+          <ng.schooln.ueapp.utils.TextviewFormat
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="@string/question"
+              android:textSize="20sp"
+              android:textAlignment="center"
+              android:id="@+id/question"
+              android:textColor="@color/black"
+              />
+
+          <android.support.v7.widget.RecyclerView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_below="@+id/question"
+              android:id="@+id/emergencylist"
+              android:layout_marginTop="10dp">
+
+          </android.support.v7.widget.RecyclerView>
+
+      </RelativeLayout>
+
+
+</RelativeLayout>
+
     </RelativeLayout>
 
-</FrameLayout>
+</android.support.v4.widget.NestedScrollView>

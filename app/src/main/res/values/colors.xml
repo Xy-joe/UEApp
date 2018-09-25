@@ -8,6 +8,8 @@
     <color name="white">#FFFFFF</color>
     <color name="grey">#cccccc</color>
     <color name="appcolor">#f9955a</color>
+    <color name="white_transparent">@android:color/transparent</color>
     <color name="black">#000000</color>
     <color name="alertbuttoncolor">#f0e10905</color>
+    <color name="bg">#59292929</color>
 </resources>

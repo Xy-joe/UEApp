@@ -7,10 +7,18 @@ import java.io.Serializable;
  */
 
 public class StaffModel implements Serializable {
-    private String id, nam, dept, img, schl, office;
+    private String id, nam, dept, img, schl, office, email;
 
     public String getSchl() {
         return schl;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getId() {
@@ -33,8 +41,9 @@ public class StaffModel implements Serializable {
         this.office = office;
     }
 
-    public StaffModel(String id, String nam, String dept,  String img, String schl, String office) {
+    public StaffModel(String id, String nam, String dept,  String img, String schl, String office, String email) {
         this.nam = nam;
+        this.email = email;
         this.office = office;
         this.dept = dept;
         this.schl = schl;

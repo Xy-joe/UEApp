@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="ng.schooln.ueapp.views.EditProfile">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:id="@+id/main1"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="280dp"
+                    android:src="@raw/ddp"
+                    android:scaleType="centerCrop"
+                    android:id="@+id/img"/>
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/ggo"
+                    android:layout_centerInParent="true">
+                    <ImageView
+                        android:layout_width="215dp"
+                        android:layout_height="194dp"
+                        android:background="@color/bg"
+                        android:id="@+id/bg"
+                        android:layout_centerInParent="true"/>
+
+                    <ng.schooln.ueapp.utils.TextviewFormat
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/clicktoadd"
+                        android:layout_margin="@dimen/activity_vertical_margin"
+                        android:textColor="@color/white"
+                        android:id="@+id/imgtxt"
+                        android:textSize="20sp"
+                        android:layout_centerInParent="true"/>
+                </RelativeLayout>
+
+            </RelativeLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:layout_below="@+id/main1"
+                android:layout_height="wrap_content">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.4dp"
+                    android:layout_below="@+id/main1"
+                    android:background="@color/grey"
+                    android:id="@+id/view"
+                    />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/activity_vertical_margin"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/username"
+                        android:textSize="14sp"
+                        />
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/name"
+                        android:hint="@string/username"
+                        android:layout_marginTop="3dp"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        />
+
+                </LinearLayout>
+            </LinearLayout>
+
+
+        </RelativeLayout>
+       
+    </ScrollView>
+
+</android.support.design.widget.CoordinatorLayout>

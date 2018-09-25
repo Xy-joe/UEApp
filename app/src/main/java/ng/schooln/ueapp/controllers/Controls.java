@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -29,14 +31,20 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.onesignal.OneSignal;
 
 import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Scanner;
 
 import ng.schooln.ueapp.R;
+import ng.schooln.ueapp.models.Alert;
 import ng.schooln.ueapp.models.StaffModel;
 import ng.schooln.ueapp.models.StudentModel;
 import ng.schooln.ueapp.utils.Connectivity;
@@ -44,6 +52,7 @@ import ng.schooln.ueapp.utils.Variables;
 import ng.schooln.ueapp.views.Homepage;
 import ng.schooln.ueapp.views.LoginActivity;
 import ng.schooln.ueapp.views.SchoolSelect;
+import ng.schooln.ueapp.views.dialog.EmergencyText;
 
 /**
  * Created by xyjoe on 9/8/18.
@@ -54,6 +63,7 @@ public class Controls {
     private Variables variables = new Variables();
     private DbHelper dbHelper;
     private ProgressDialog progressDialog;
+    private  String LoggedIn_User_ID;
 
     public Controls(FirebaseAuth auth) {
         this.auth = auth;
@@ -182,6 +192,7 @@ public class Controls {
         }
 
     }
+
     //Complete the creation on verified staff Account
     private void finaliseStaff(final Context context, final ProgressDialog progressDialog){
         progressDialog.show();
@@ -190,25 +201,30 @@ public class Controls {
            @Override
            public void onDataChange(@NonNull final DataSnapshot dataSnapshot) {
                if (dataSnapshot.getValue() != null){
-                   StaffModel staffModel = dataSnapshot.getValue(StaffModel.class);
+                   final StaffModel staffModel = dataSnapshot.getValue(StaffModel.class);
                    dbHelper.staffref(auth.getCurrentUser().getUid()).setValue(staffModel).addOnCompleteListener(new OnCompleteListener<Void>() {
                        @Override
                        public void onComplete(@NonNull Task<Void> task) {
                            if (task.isSuccessful()){
-                               dbHelper.UnverifiedStaffs(auth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                               dbHelper.staffdepartmentref(staffModel.getDept()).child(auth.getCurrentUser().getUid()).child(variables.ID).setValue(auth.getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<Void>() {
                                    @Override
                                    public void onSuccess(Void aVoid) {
-                                       if (dataSnapshot.getValue() != null){
-                                           dbHelper.VerifiedStaffs(auth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                               @Override
-                                               public void onSuccess(Void aVoid) {
-                                                   if ((progressDialog != null) && progressDialog.isShowing()) {
-                                                       progressDialog.dismiss();
-                                                   }
-                                                   gotohomepage(context,variables.Staffs, null);
+                                       dbHelper.UnverifiedStaffs(auth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                           @Override
+                                           public void onSuccess(Void aVoid) {
+                                               if (dataSnapshot.getValue() != null){
+                                                   dbHelper.VerifiedStaffs(auth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                       @Override
+                                                       public void onSuccess(Void aVoid) {
+                                                           if ((progressDialog != null) && progressDialog.isShowing()) {
+                                                               progressDialog.dismiss();
+                                                           }
+                                                           gotohomepage(context,variables.Staffs, null);
+                                                       }
+                                                   });
                                                }
-                                           });
-                                       }
+                                           }
+                                       });
                                    }
                                });
 
@@ -302,6 +318,24 @@ public class Controls {
         dbHelper = new DbHelper(auth, context);
         if (Connectivity.isConnected(context)){
             progressDialog.show();
+            OneSignal.idsAvailable(new OneSignal.IdsAvailableHandler() {
+                @Override
+                public void idsAvailable(String userId, String registrationId) {
+                    if (userId == null ){
+                        OneSignal.startInit(context)
+                                .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
+                                .unsubscribeWhenNotificationsAreDisabled(true)
+                                .init();
+
+                    }else {
+                        LoggedIn_User_ID = auth.getCurrentUser().getUid();
+                        OneSignal.sendTag(variables.ID, LoggedIn_User_ID);
+                        OneSignal.syncHashedEmail(auth.getCurrentUser().getEmail());
+
+                    }
+
+                }
+            });
             if (picturepath != null){
                 Bitmap bitmap = decodeSampledBitmapFromResource(picturepath, 500, 600);
                 Locale locale = new Locale("yyMMddHHmmss");
@@ -329,14 +363,18 @@ public class Controls {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                        // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
-                     final String imageurl = taskSnapshot.getMetadata().getPath();
-
-                        UserProfileChangeRequest userProfileChangeRequest = new UserProfileChangeRequest.Builder().setPhotoUri(Uri.parse(imageurl)).build();
-                        auth.getCurrentUser().updateProfile(userProfileChangeRequest).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        dbHelper.profilephoto(mydownloadUrl).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
-                            public void onSuccess(Void aVoid) {
-                                proceed(office,context,dept,faculty,level);
+                            public void onSuccess(Uri uri) {
+                                final Uri imageurl =  uri;
+
+                                UserProfileChangeRequest userProfileChangeRequest = new UserProfileChangeRequest.Builder().setPhotoUri(imageurl).build();
+                                auth.getCurrentUser().updateProfile(userProfileChangeRequest).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        proceed(office,context,dept,faculty,level);
+                                    }
+                                });
                             }
                         });
 
@@ -368,18 +406,24 @@ public class Controls {
         alert.show();
     }
 
-    private void proceed(String office, final Context context, String dept,String faculty, String level){
+    private void proceed(String office, final Context context, final String dept, String faculty, String level){
         if (office == null){
-            final StudentModel studentModel = new StudentModel(auth.getCurrentUser().getUid(),auth.getCurrentUser().getDisplayName(), dept, level, String.valueOf(auth.getCurrentUser().getPhotoUrl()), faculty);
+            final StudentModel studentModel = new StudentModel(auth.getCurrentUser().getUid(),auth.getCurrentUser().getDisplayName(), dept, level, String.valueOf(auth.getCurrentUser().getPhotoUrl()), faculty, auth.getCurrentUser().getEmail());
             dbHelper.studentref(auth.getCurrentUser().getUid()).setValue(studentModel).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful()){
-                        if ((progressDialog != null) && progressDialog.isShowing()) {
-                            progressDialog.dismiss();
-                            progressDialog = null;
-                        }
-                        gotohomepage(context,null,variables.Student);
+                        dbHelper.studentdepartmentref(dept).child(auth.getCurrentUser().getUid()).child(variables.ID).setValue(auth.getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                if ((progressDialog != null) && progressDialog.isShowing()) {
+                                    progressDialog.dismiss();
+                                    progressDialog = null;
+                                }
+                                gotohomepage(context,null,variables.Student);
+                            }
+                        });
+
                     }else {
                         if ((progressDialog != null) && progressDialog.isShowing()) {
                             progressDialog.dismiss();
@@ -390,7 +434,7 @@ public class Controls {
                 }
             });
         }else {
-            StaffModel staffModel = new StaffModel(auth.getCurrentUser().getUid(), auth.getCurrentUser().getDisplayName(), dept,String.valueOf(auth.getCurrentUser().getPhotoUrl()), faculty, office);
+            StaffModel staffModel = new StaffModel(auth.getCurrentUser().getUid(), auth.getCurrentUser().getDisplayName(), dept,String.valueOf(auth.getCurrentUser().getPhotoUrl()), faculty, office, auth.getCurrentUser().getEmail());
             dbHelper.UnverifiedStaffs(auth.getCurrentUser().getUid()).setValue(staffModel).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
@@ -505,5 +549,149 @@ public class Controls {
         }
 
         return inSampleSize;
+    }
+
+    public void sendNotificationandSave(final String text, final String etype, String usertype, final EmergencyText emergencyText){
+        dbHelper = new DbHelper(auth, emergencyText.getActivity());
+        Locale locale = new Locale("yyMMddHHmmss");
+        DateFormat df = new SimpleDateFormat("yyMMddHHmmss", locale);
+        Date dateobj = new Date();
+        final ProgressDialog progressDialog = new ProgressDialog(emergencyText.getActivity());
+        progressDialog.setMessage(emergencyText.getActivity().getString(R.string.pleasewait));
+        if (Connectivity.isConnected(emergencyText.getActivity())) {
+            progressDialog.show();
+            final String id = df.format(dateobj) + auth.getCurrentUser().getUid();
+            if (usertype != null) {
+                if (usertype.equals(variables.Staffs)) {
+                    dbHelper.staffref(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.getValue() != null) {
+                                final StaffModel staffModel = dataSnapshot.getValue(StaffModel.class);
+                                final Alert alert = new Alert(variables.Staffs, System.currentTimeMillis(), text, etype, auth.getCurrentUser().getUid(), 0.0, 0.0);
+                                dbHelper.Depthistorystudentref(staffModel.getDept()).child(id).setValue(alert).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        dbHelper.Tagref().child(etype).child(id).setValue(alert).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                notifyA(auth.getCurrentUser().getUid());
+                                                progressDialog.dismiss();
+                                                emergencyText.dismiss();
+                                            }
+                                        });
+
+                                    }
+                                });
+
+
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+                } else {
+                    dbHelper.studentref(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.getValue() != null) {
+                                final StudentModel studentModel = dataSnapshot.getValue(StudentModel.class);
+                                final Alert alert = new Alert(variables.Student, System.currentTimeMillis(), text, etype, auth.getCurrentUser().getUid(), 0.0, 0.0);
+                                dbHelper.Depthistorystudentref(studentModel.getDept()).child(id).setValue(alert).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        dbHelper.Tagref().child(etype).child(id).setValue(alert).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                notifyA(auth.getCurrentUser().getUid());
+                                                progressDialog.dismiss();
+                                                emergencyText.dismiss();
+                                            }
+                                        });
+
+
+                                    }
+                                });
+
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+            }
+        }else {
+            Toast.makeText(emergencyText.getActivity(), "No Internet connection", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void notifyA(final String userId){
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                int SDK_INT = android.os.Build.VERSION.SDK_INT;
+                if (SDK_INT > 8) {
+                    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                            .permitAll().build();
+                    StrictMode.setThreadPolicy(policy);
+
+                    try {
+                        String jsonResponse;
+
+                        URL url = new URL("https://onesignal.com/api/v1/notifications");
+                        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                        con.setUseCaches(false);
+                        con.setDoOutput(true);
+                        con.setDoInput(true);
+
+                        con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                        con.setRequestProperty("Authorization", "Basic YWE4ZWNiM2QtODQzZS00YjI4LTg5OWUtNGMwMmIwMjg0OTE1");
+                        con.setRequestMethod("POST");
+
+                        String strJsonBody = "{"
+                                + "\"app_id\": \"26e448b4-ea29-4c95-80ee-3efed2649c11\","
+
+                                + "\"filters\": [{\"field\": \"tag\", \"key\": \"id\", \"relation\": \"=\", \"value\": \"" + userId + "\"}],"
+
+                                + "\"data\": {\"activityToBeOpened\": \"Staffemergency\"},"
+                                + "\"contents\": {\"en\": \"AlERT!!! New Emergency Alert\"}"
+                                + "}";
+
+                        System.out.println("strJsonBody:\n" + strJsonBody);
+
+                        byte[] sendBytes = strJsonBody.getBytes("UTF-8");
+                        con.setFixedLengthStreamingMode(sendBytes.length);
+
+                        OutputStream outputStream = con.getOutputStream();
+                        outputStream.write(sendBytes);
+
+                        int httpResponse = con.getResponseCode();
+                        System.out.println("httpResponse: " + httpResponse);
+
+                        if (httpResponse >= HttpURLConnection.HTTP_OK
+                                && httpResponse < HttpURLConnection.HTTP_BAD_REQUEST) {
+                            Scanner scanner = new Scanner(con.getInputStream(), "UTF-8");
+                            jsonResponse = scanner.useDelimiter("\\A").hasNext() ? scanner.next() : "";
+                            scanner.close();
+                        } else {
+                            Scanner scanner = new Scanner(con.getErrorStream(), "UTF-8");
+                            jsonResponse = scanner.useDelimiter("\\A").hasNext() ? scanner.next() : "";
+                            scanner.close();
+                        }
+                        System.out.println("jsonResponse:\n" + jsonResponse);
+
+                    } catch (Throwable t) {
+                        t.printStackTrace();
+                    }
+                }
+            }
+
+        });
     }
 }

@@ -53,6 +53,7 @@ public class Register extends AppCompatActivity  {
     private AutoCompleteTextView mEmailView;
     private AutoCompleteTextView mUsernameView;
     private EditText mPasswordView;
+    private EditText mConfirmPasswordView;
     private View mProgressView;
     private View mLoginFormView;
     private TextView login;
@@ -66,7 +67,7 @@ public class Register extends AppCompatActivity  {
         // Set up the login form.
         init();
         mEmailView = findViewById(R.id.email);
-
+        mConfirmPasswordView = findViewById(R.id.conpassword);
         mPasswordView = findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -114,6 +115,7 @@ public class Register extends AppCompatActivity  {
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
         String username = mUsernameView.getText().toString();
+        String confirmpassword = mConfirmPasswordView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -123,6 +125,19 @@ public class Register extends AppCompatActivity  {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
+        }
+
+        if (!TextUtils.isEmpty(confirmpassword) && !isPasswordValid(confirmpassword)) {
+            mConfirmPasswordView.setError(getString(R.string.error_invalid_password));
+            focusView = mConfirmPasswordView;
+            cancel = true;
+        }
+        if (!confirmpassword.equals(password)){
+            if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+                mConfirmPasswordView.setError("Password do not match");
+                focusView = mConfirmPasswordView;
+                cancel = true;
+            }
         }
 
         // Check for a valid email address.
@@ -171,7 +186,6 @@ public class Register extends AppCompatActivity  {
         // the progress spinner.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-            Toast.makeText(Register.this, "No Action yet", Toast.LENGTH_SHORT).show();
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             mProgressView.animate().setDuration(shortAnimTime).alpha(
                     show ? 1 : 0).setListener(new AnimatorListenerAdapter() {

@@ -5,9 +5,21 @@
     <string name="prompt_email">Email</string>
     <string name="forgot">Forgot ?</string>
     <string name="prompt_password">Password</string>
+    <string name="confirm_password">Confirm password</string>
     <string name="action_sign_in">Register</string>
     <string name="username">Username</string>
+    <string name="logout">Log out</string>
     <string name="action_sign_in_short">Sign in</string>
+    <string name="clicktoadd">Click to add Image</string>
+    <string name="homeppage">Homepage</string>
+    <string name="save">Save</string>
+    <string name="noresult">No Result Found</string>
+    <string name="alrtno">Alert Now</string>
+    <string name="editpro">Change Profile</string>
+    <string name="location">Location</string>
+    <string name="dept">Department</string>
+    <string name="level">Level</string>
+    <string name="office">Position in department</string>
     <string name="action_login_in_short">Login</string>
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
@@ -16,6 +28,8 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="recent">Recent</string>
+    <string name="question">whats you emergency?</string>
     <string name="fpass_text">Enter your email to receive your password reset link</string>
     <string name="dont_have_an">Do not have an account ?</string>
     <string name="already_have_an">Already have an account ?</string>
@@ -25,9 +39,12 @@
     <string name="pleasewait">Please wait...</string>
     <string name="send">Send</string>
     <string name="fpass">Forgot password ?</string>
+    <string name="nohistory">No recent history</string>
     <string name="call_later">we are trying to validate your position in your department, you will receive a confirmation mail in 24hrs, after which you can log into the App</string>
     <string name="sucessregistext">You position has been Confirmed.\n WellCome to UEApp</string>
     <string name="unconfirmedaccount">Sorry your position in your department has not been verified yet. Please try again later</string>
+    <string name="msghint">Briefly describe what is going on</string>
+    <string name="typehere">type here</string>
     <string-array name="faculty">
         <item>--- Select your faculty ---</item>
         <item>SAAT</item>
@@ -68,4 +85,5 @@
 
 
     </string-array>
+    <string name="title_activity_userprofile">Userprofile</string>
 </resources>

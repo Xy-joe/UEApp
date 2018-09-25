@@ -7,7 +7,7 @@ import java.io.Serializable;
  */
 
 public class StudentModel implements Serializable {
-    private String id,nam, dept, lvl, img, schl;
+    private String id,nam, dept, lvl, img, schl, email;
 
     public String getSchl() {
         return schl;
@@ -25,16 +25,25 @@ public class StudentModel implements Serializable {
         this.id = id;
     }
 
-    public StudentModel(String id, String nam, String dept, String lvl, String img, String schl) {
+    public StudentModel(String id, String nam, String dept, String lvl, String img, String schl, String email) {
         this.nam = nam;
         this.dept = dept;
         this.schl = schl;
         this.lvl = lvl;
         this.id = id;
+        this.email = email;
         this.img = img;
     }
 
     public StudentModel() {
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getNam() {

@@ -28,6 +28,10 @@ public class DbHelper {
      return FirebaseDatabase.getInstance().getReference().child(variables.Appname).child(variables.Users).child(variables.Student).child(uid);
     }
 
+    public DatabaseReference userref(){
+        return FirebaseDatabase.getInstance().getReference().child(variables.Appname).child(variables.Users);
+    }
+
     public DatabaseReference staffref(String uid){
         return FirebaseDatabase.getInstance().getReference().child(variables.Appname).child(variables.Users).child(variables.Staffs).child(uid);
     }
@@ -43,4 +47,34 @@ public class DbHelper {
     public DatabaseReference VerifiedStaffs(String uid){
         return FirebaseDatabase.getInstance().getReference().child(variables.Appname).child(variables.Users).child(variables.Verified).child(uid);
     }
+
+    public DatabaseReference stuentEmer(){
+        return FirebaseDatabase.getInstance().getReference().child(variables.Appname).child(variables.Studentemergencies);
+    }
+
+    public DatabaseReference stafemer(){
+        return FirebaseDatabase.getInstance().getReference().child(variables.Appname).child(variables.StaffEmergencies);
+    }
+
+    public DatabaseReference staffdepartmentref(String dept){
+        return FirebaseDatabase.getInstance().getReference().child(variables.Appname).child(variables.Dept).child(dept).child("sta");
+    }
+
+    public DatabaseReference studentdepartmentref(String dept){
+        return FirebaseDatabase.getInstance().getReference().child(variables.Appname).child(variables.Dept).child(dept).child("stu");
+    }
+
+    public DatabaseReference Tagref (){
+        return FirebaseDatabase.getInstance().getReference().child(variables.Appname).child(variables.Tags);
+    }
+
+
+    public DatabaseReference Depthistorystaffref(String dept){
+        return FirebaseDatabase.getInstance().getReference().child(variables.Appname).child(variables.Dept).child(dept).child(variables.History).child(variables.Staffs);
+    }
+
+    public DatabaseReference Depthistorystudentref(String dept){
+        return FirebaseDatabase.getInstance().getReference().child(variables.Appname).child(variables.Dept).child(dept).child(variables.History).child(variables.Student);
+    }
+
 }

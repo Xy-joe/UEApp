@@ -12,6 +12,13 @@ public class Variables {
     public String Verified = "Ver";
     public String Unverifier = "Unv";
     public String ID = "id";
+    public String Dept = "Dept";
+    public String Locations = "User Locations";
+    public String Studentemergencies = "Student Eme";
+    public String StaffEmergencies = "Staff Eme";
+    public String History = "History";
+    public  String Tags = "Tags";
+
 
 
 }

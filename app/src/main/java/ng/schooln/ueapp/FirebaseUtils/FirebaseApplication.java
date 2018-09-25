@@ -5,6 +5,8 @@ import android.content.Context;
 import com.crashlytics.android.Crashlytics;
 import com.firebase.client.Firebase;
 import com.google.firebase.database.FirebaseDatabase;
+import com.onesignal.OneSignal;
+
 import io.fabric.sdk.android.Fabric;
 import ng.schooln.ueapp.utils.Connectivity;
 
@@ -24,6 +26,14 @@ public class FirebaseApplication extends Application {
         Firebase.setAndroidContext(this);
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         context = getApplicationContext();
+
+        OneSignal.startInit(this)
+                .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
+                .unsubscribeWhenNotificationsAreDisabled(true)
+              //  .setNotificationOpenedHandler(new MyNotificationOpenedHandler())
+                //.setNotificationReceivedHandler( new MyNotificationReceivedHandler() )
+                .init();
+
         final Fabric fabric = new Fabric.Builder(this)
                 .kits(new Crashlytics())
                 .debuggable(true)           // Enables Crashlytics debugger

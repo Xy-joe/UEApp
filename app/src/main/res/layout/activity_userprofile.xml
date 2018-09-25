@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="ng.schooln.ueapp.views.Userprofile">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="310dp"
+                android:id="@+id/main1"
+                >
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="280dp"
+                    android:id="@+id/userimg"
+                    android:scaleType="centerCrop"
+                    android:src="@raw/ddp"/>
+                <android.support.design.widget.FloatingActionButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:fabSize="normal"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="230dp"
+                    android:id="@+id/editp"
+                    android:src="@drawable/ic_pen"
+                    android:layout_marginEnd="10dp"
+                    />
+
+            </RelativeLayout>
+
+                <android.support.v7.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="@color/white_transparent"
+                    app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/main1">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.4dp"
+                    android:background="@color/grey"
+                    android:id="@+id/view"
+                    />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/activity_vertical_margin"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/username"
+                        android:textSize="14sp"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/name"
+                        android:layout_marginTop="3dp"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/prompt_email"
+                        android:textSize="14sp"
+                        />
+                    <ng.schooln.ueapp.utils.TextviewFormat
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/emal"
+                        android:textSize="16sp"
+                        android:textColor="@color/black"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dept"
+                        android:textSize="14sp"
+                        />
+                    <ng.schooln.ueapp.utils.TextviewFormat
+                        android:textColor="@color/black"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/dept"
+                        android:textSize="16sp"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/oth"
+                        android:textSize="14sp"
+                        />
+                    <ng.schooln.ueapp.utils.TextviewFormat
+                        android:textColor="@color/black"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/other"
+                        android:textSize="16sp"
+                        android:layout_marginBottom="@dimen/activity_vertical_margin"
+                        />
+                </LinearLayout>
+
+
+            </RelativeLayout>
+
+        </RelativeLayout>
+    </ScrollView>
+
+
+</android.support.design.widget.CoordinatorLayout>
