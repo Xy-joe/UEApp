@@ -63,6 +63,7 @@ import ng.schooln.ueapp.adapters.EtypeAdapter;
 import ng.schooln.ueapp.adapters.HistoryAdapter;
 import ng.schooln.ueapp.controllers.DbHelper;
 import ng.schooln.ueapp.models.Alert;
+import ng.schooln.ueapp.models.LocationModel;
 import ng.schooln.ueapp.models.StaffModel;
 import ng.schooln.ueapp.models.StudentModel;
 import ng.schooln.ueapp.utils.BounceEffect;
@@ -199,6 +200,60 @@ public class Homepage extends AppCompatActivity implements OnMapReadyCallback, G
     @Override
     public void onClick(View view) {
         if (view ==  alertbg){
+                if (userlocation != null && addresses != null){
+                    if (student != null){
+                    dbHelper.stuentEmer().getRef().addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.getValue() != null){
+                                stuettypedata.clear();
+                                for (DataSnapshot ds : dataSnapshot.getChildren()){
+                                    StudentModel  odel = ds.getValue(StudentModel.class);
+                                    stuettypedata.add(0,odel);
+
+                                    etypeAdapter = new EtypeAdapter(Homepage.this,stuettypedata,null,auth,null,studentModel, userlocation,addresses);
+                                    emerrecycler.setLayoutManager(new LinearLayoutManager(Homepage.this));
+                                    emerrecycler.setHasFixedSize(true);
+                                    emerrecycler.addItemDecoration(new DividerItemDecoration(Homepage.this,DividerItemDecoration.HORIZONTAL));
+                                    emerrecycler.setAdapter(etypeAdapter);
+                                    etypeAdapter.notifyDataSetChanged();
+                                }
+
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+                }else if (staff != null){
+                        dbHelper.stafemer().getRef().addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                ettypedata.clear();
+                                if (dataSnapshot.getValue() != null) {
+                                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                                        StaffModel odel = ds.getValue(StaffModel.class);
+                                        ettypedata.add(0, odel);
+
+                                        etypeAdapter = new EtypeAdapter(Homepage.this, null, ettypedata, auth, odel, null, userlocation, addresses);
+                                        emerrecycler.setLayoutManager(new LinearLayoutManager(Homepage.this));
+                                        emerrecycler.setHasFixedSize(true);
+                                        emerrecycler.addItemDecoration(new DividerItemDecoration(Homepage.this, DividerItemDecoration.HORIZONTAL));
+                                        emerrecycler.setAdapter(etypeAdapter);
+                                        etypeAdapter.notifyDataSetChanged();
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+            }
             if (emerlay.getVisibility() != View.VISIBLE){
                 historylay.setVisibility(View.GONE);
                 emerlay.setVisibility(View.VISIBLE);
@@ -282,6 +337,7 @@ public class Homepage extends AppCompatActivity implements OnMapReadyCallback, G
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(12f));
             getCurrentuserAddress(mlocation);
+
         }else {
             getCurrentuserAddress(mlocation);
         }
@@ -306,6 +362,8 @@ public class Homepage extends AppCompatActivity implements OnMapReadyCallback, G
                     addresses = geocoder.getFromLocation(userlocation.latitude, userlocation.longitude, 1);
                     String addr = addresses.get(0).getAddressLine(0);
                     address.setText(addr);
+                    LocationModel locationModel = new LocationModel(auth.getCurrentUser().getUid(), userlocation.latitude, userlocation.longitude);
+                    dbHelper.UsersCurrentLocation().child(auth.getCurrentUser().getUid()).setValue(locationModel);
                 }
                 catch (IOException e) {
                //     Toast.makeText(Homepage.this,e.getMessage(),Toast.LENGTH_LONG).show();
@@ -342,8 +400,6 @@ public class Homepage extends AppCompatActivity implements OnMapReadyCallback, G
         geocoder = new Geocoder(this, Locale.getDefault());
        Typeface custom_font = Typeface.createFromAsset(getAssets(),  "fonts/Lato-Black.ttf");
         alerttex.setTypeface(custom_font);
-        setupUserViews();
-
         historyrecycler = findViewById(R.id.historyrecy);
         emerrecycler = findViewById(R.id.emergencylist);
         handler = new Handler();
@@ -356,7 +412,7 @@ public class Homepage extends AppCompatActivity implements OnMapReadyCallback, G
                 handler.postDelayed(this, delay);
             }
         }, delay);
-
+        setupUserViews();
     }
 
     private void popButton(){
@@ -386,7 +442,7 @@ public class Homepage extends AppCompatActivity implements OnMapReadyCallback, G
                                         StudentModel  odel = ds.getValue(StudentModel.class);
                                         stuettypedata.add(0,odel);
 
-                                        etypeAdapter = new EtypeAdapter(Homepage.this,stuettypedata,null,auth,null,studentModel, mlocation);
+                                        etypeAdapter = new EtypeAdapter(Homepage.this,stuettypedata,null,auth,null,studentModel, userlocation,addresses);
                                         emerrecycler.setLayoutManager(new LinearLayoutManager(Homepage.this));
                                         emerrecycler.setHasFixedSize(true);
                                         emerrecycler.addItemDecoration(new DividerItemDecoration(Homepage.this,DividerItemDecoration.HORIZONTAL));
@@ -460,13 +516,12 @@ public class Homepage extends AppCompatActivity implements OnMapReadyCallback, G
                                         StaffModel odel = ds.getValue(StaffModel.class);
                                         ettypedata.add(0, odel);
 
-                                        etypeAdapter = new EtypeAdapter(Homepage.this, null, ettypedata, auth, odel, null,  mlocation);
+                                        etypeAdapter = new EtypeAdapter(Homepage.this, null, ettypedata, auth, odel, null, userlocation, addresses);
                                         emerrecycler.setLayoutManager(new LinearLayoutManager(Homepage.this));
                                         emerrecycler.setHasFixedSize(true);
                                         emerrecycler.addItemDecoration(new DividerItemDecoration(Homepage.this, DividerItemDecoration.HORIZONTAL));
                                         emerrecycler.setAdapter(etypeAdapter);
                                         etypeAdapter.notifyDataSetChanged();
-
                                     }
                                 }
                             }

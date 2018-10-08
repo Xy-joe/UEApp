@@ -7,4 +7,10 @@
         app:showAsAction="never"
         />
 
+    <item
+        android:id="@+id/log"
+        android:title="@string/historelog"
+        app:showAsAction="never"
+        />
+
 </menu>

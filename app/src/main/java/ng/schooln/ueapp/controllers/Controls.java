@@ -39,12 +39,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Scanner;
 
 import ng.schooln.ueapp.R;
 import ng.schooln.ueapp.models.Alert;
+import ng.schooln.ueapp.models.LocationModel;
 import ng.schooln.ueapp.models.StaffModel;
 import ng.schooln.ueapp.models.StudentModel;
 import ng.schooln.ueapp.utils.Connectivity;
@@ -64,6 +66,7 @@ public class Controls {
     private DbHelper dbHelper;
     private ProgressDialog progressDialog;
     private  String LoggedIn_User_ID;
+    ArrayList<LocationModel> locationModels = new ArrayList<>();
 
     public Controls(FirebaseAuth auth) {
         this.auth = auth;
@@ -81,14 +84,14 @@ public class Controls {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()){
-                            dbHelper.studentref(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                            dbHelper.studentref(auth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                     if (dataSnapshot.getValue() != null){
                                         progressDialog.dismiss();
                                         gotohomepage(context, null, variables.Student);
                                     }else {
-                                        dbHelper.VerifiedStaffs(auth.getCurrentUser().getUid()).getRef().addValueEventListener(new ValueEventListener() {
+                                        dbHelper.VerifiedStaffs(auth.getCurrentUser().getUid()).getRef().addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                                 if (dataSnapshot.getValue() != null){
@@ -106,7 +109,7 @@ public class Controls {
                                                     AlertDialog alert = builder.create();
                                                     alert.show();
                                                 }else {
-                                                    dbHelper.UnverifiedStaffs(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                                                    dbHelper.UnverifiedStaffs(auth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                                                         @Override
                                                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                                             if (dataSnapshot.getValue() != null){
@@ -551,15 +554,33 @@ public class Controls {
         return inSampleSize;
     }
 
-    public void sendNotificationandSave(final String text, final String etype, String usertype, final EmergencyText emergencyText){
+    public void sendNotificationandSave(final String text, final String etype, String usertype, final EmergencyText emergencyText, double latitude, double longitude){
         dbHelper = new DbHelper(auth, emergencyText.getActivity());
         Locale locale = new Locale("yyMMddHHmmss");
         DateFormat df = new SimpleDateFormat("yyMMddHHmmss", locale);
         Date dateobj = new Date();
         final ProgressDialog progressDialog = new ProgressDialog(emergencyText.getActivity());
         progressDialog.setMessage(emergencyText.getActivity().getString(R.string.pleasewait));
+
         if (Connectivity.isConnected(emergencyText.getActivity())) {
             progressDialog.show();
+            if (!String.valueOf(latitude).equals("") && !String.valueOf(longitude).equals("")){
+                dbHelper.UsersCurrentLocation().child(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.getValue() != null){
+                            LocationModel model = dataSnapshot.getValue(LocationModel.class);
+                            //   Get User location and Compare the values with other users, to know the closest users
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
             final String id = df.format(dateobj) + auth.getCurrentUser().getUid();
             if (usertype != null) {
                 if (usertype.equals(variables.Staffs)) {
@@ -569,13 +590,31 @@ public class Controls {
                             if (dataSnapshot.getValue() != null) {
                                 final StaffModel staffModel = dataSnapshot.getValue(StaffModel.class);
                                 final Alert alert = new Alert(variables.Staffs, System.currentTimeMillis(), text, etype, auth.getCurrentUser().getUid(), 0.0, 0.0);
-                                dbHelper.Depthistorystudentref(staffModel.getDept()).child(id).setValue(alert).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                dbHelper.Depthistorystaffref(staffModel.getDept()).child(id).setValue(alert).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         dbHelper.Tagref().child(etype).child(id).setValue(alert).addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
-                                                notifyA(auth.getCurrentUser().getUid());
+                                                dbHelper.staffdepartmentref(staffModel.getDept()).getRef().addValueEventListener(new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                        if (dataSnapshot.getValue() != null){
+                                                            locationModels.clear();
+                                                            for (DataSnapshot ds : dataSnapshot.getChildren()){
+                                                                LocationModel model = ds.getValue(LocationModel.class);
+                                                                locationModels.add(0,model);
+                                                                notifyA(locationModels);
+                                                            }
+
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                                    }
+                                                });
                                                 progressDialog.dismiss();
                                                 emergencyText.dismiss();
                                             }
@@ -606,7 +645,25 @@ public class Controls {
                                         dbHelper.Tagref().child(etype).child(id).setValue(alert).addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
-                                                notifyA(auth.getCurrentUser().getUid());
+                                              dbHelper.studentdepartmentref(studentModel.getDept()).getRef().addValueEventListener(new ValueEventListener() {
+                                                  @Override
+                                                  public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                      if (dataSnapshot.getValue() != null){
+                                                        locationModels.clear();
+                                                        for (DataSnapshot ds : dataSnapshot.getChildren()){
+                                                            LocationModel model = ds.getValue(LocationModel.class);
+                                                            locationModels.add(0,model);
+                                                            notifyA(locationModels);
+                                                        }
+
+                                                      }
+                                                  }
+
+                                                  @Override
+                                                  public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                                  }
+                                              });
                                                 progressDialog.dismiss();
                                                 emergencyText.dismiss();
                                             }
@@ -631,67 +688,73 @@ public class Controls {
         }
     }
 
-    private void notifyA(final String userId){
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                int SDK_INT = android.os.Build.VERSION.SDK_INT;
-                if (SDK_INT > 8) {
-                    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                            .permitAll().build();
-                    StrictMode.setThreadPolicy(policy);
+    private void notifyA(final ArrayList<LocationModel> users){
+        for (int w = 0; w < users.size(); w++) {
+            final String ff = users.get(w).getId();
+            if (!ff.equals(auth.getCurrentUser().getUid())) {
+                AsyncTask.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        int SDK_INT = android.os.Build.VERSION.SDK_INT;
+                        if (SDK_INT > 8) {
+                            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                                    .permitAll().build();
+                            StrictMode.setThreadPolicy(policy);
 
-                    try {
-                        String jsonResponse;
+                            try {
+                                String jsonResponse;
 
-                        URL url = new URL("https://onesignal.com/api/v1/notifications");
-                        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                        con.setUseCaches(false);
-                        con.setDoOutput(true);
-                        con.setDoInput(true);
+                                URL url = new URL("https://onesignal.com/api/v1/notifications");
+                                HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                                con.setUseCaches(false);
+                                con.setDoOutput(true);
+                                con.setDoInput(true);
 
-                        con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-                        con.setRequestProperty("Authorization", "Basic YWE4ZWNiM2QtODQzZS00YjI4LTg5OWUtNGMwMmIwMjg0OTE1");
-                        con.setRequestMethod("POST");
+                                con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                                con.setRequestProperty("Authorization", "Basic YWE4ZWNiM2QtODQzZS00YjI4LTg5OWUtNGMwMmIwMjg0OTE1");
+                                con.setRequestMethod("POST");
 
-                        String strJsonBody = "{"
-                                + "\"app_id\": \"26e448b4-ea29-4c95-80ee-3efed2649c11\","
+                                String strJsonBody = "{"
+                                        + "\"app_id\": \"26e448b4-ea29-4c95-80ee-3efed2649c11\","
 
-                                + "\"filters\": [{\"field\": \"tag\", \"key\": \"id\", \"relation\": \"=\", \"value\": \"" + userId + "\"}],"
+                                        + "\"filters\": [{\"field\": \"tag\", \"key\": \"id\", \"relation\": \"=\", \"value\": \"" + ff+ "\"}],"
 
-                                + "\"data\": {\"activityToBeOpened\": \"Staffemergency\"},"
-                                + "\"contents\": {\"en\": \"AlERT!!! New Emergency Alert\"}"
-                                + "}";
+                                        + "\"data\": {\"activityToBeOpened\": \"Staffemergency\"},"
+                                        + "\"contents\": {\"en\": \"AlERT!!! New Emergency Alert\"}"
+                                        + "}";
 
-                        System.out.println("strJsonBody:\n" + strJsonBody);
+                                System.out.println("strJsonBody:\n" + strJsonBody);
 
-                        byte[] sendBytes = strJsonBody.getBytes("UTF-8");
-                        con.setFixedLengthStreamingMode(sendBytes.length);
+                                byte[] sendBytes = strJsonBody.getBytes("UTF-8");
+                                con.setFixedLengthStreamingMode(sendBytes.length);
 
-                        OutputStream outputStream = con.getOutputStream();
-                        outputStream.write(sendBytes);
+                                OutputStream outputStream = con.getOutputStream();
+                                outputStream.write(sendBytes);
 
-                        int httpResponse = con.getResponseCode();
-                        System.out.println("httpResponse: " + httpResponse);
+                                int httpResponse = con.getResponseCode();
+                                System.out.println("httpResponse: " + httpResponse);
 
-                        if (httpResponse >= HttpURLConnection.HTTP_OK
-                                && httpResponse < HttpURLConnection.HTTP_BAD_REQUEST) {
-                            Scanner scanner = new Scanner(con.getInputStream(), "UTF-8");
-                            jsonResponse = scanner.useDelimiter("\\A").hasNext() ? scanner.next() : "";
-                            scanner.close();
-                        } else {
-                            Scanner scanner = new Scanner(con.getErrorStream(), "UTF-8");
-                            jsonResponse = scanner.useDelimiter("\\A").hasNext() ? scanner.next() : "";
-                            scanner.close();
+                                if (httpResponse >= HttpURLConnection.HTTP_OK
+                                        && httpResponse < HttpURLConnection.HTTP_BAD_REQUEST) {
+                                    Scanner scanner = new Scanner(con.getInputStream(), "UTF-8");
+                                    jsonResponse = scanner.useDelimiter("\\A").hasNext() ? scanner.next() : "";
+                                    scanner.close();
+                                } else {
+                                    Scanner scanner = new Scanner(con.getErrorStream(), "UTF-8");
+                                    jsonResponse = scanner.useDelimiter("\\A").hasNext() ? scanner.next() : "";
+                                    scanner.close();
+                                }
+                                System.out.println("jsonResponse:\n" + jsonResponse);
+
+                            } catch (Throwable t) {
+                                t.printStackTrace();
+                            }
                         }
-                        System.out.println("jsonResponse:\n" + jsonResponse);
-
-                    } catch (Throwable t) {
-                        t.printStackTrace();
                     }
-                }
-            }
 
-        });
+                });
+            }
+        }
+
     }
 }

@@ -10,7 +10,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="visible"
+            android:visibility="gone"
             android:id="@+id/main1">
             <LinearLayout
                 android:layout_width="match_parent"
@@ -114,7 +114,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="150dp"
         android:padding="@dimen/activity_vertical_margin"
@@ -128,11 +128,21 @@
             android:text="What Office do you occupy in your department"
             android:textSize="18sp"
             android:textAlignment="center"/>
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:spinnerMode="dialog"
+            android:entries="@array/offices"
+            android:id="@+id/officespin"
+            android:layout_below="@+id/selectPosition">
+
+        </Spinner>
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:layout_below="@+id/selectPosition"
+            android:visibility="gone"
+            android:layout_below="@+id/officespin"
             android:inputType="text"
             android:textColor="@color/black"
             android:hint="type here"

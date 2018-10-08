@@ -32,10 +32,11 @@ public  class EmergencyText extends DialogFragment implements View.OnClickListen
     FirebaseAuth auth;
 
     EditText editText;
-    String  usertype;
+    String  usertype, address;
     Button alertbtn;
     ProgressDialog pd;
     String alerttype;
+    private double latitude, longitude;
     Variables variables;
 
 
@@ -64,11 +65,17 @@ public  class EmergencyText extends DialogFragment implements View.OnClickListen
         editText.requestFocus();
         usertype = getArguments().getString("usertype");
         editText.addTextChangedListener(wachText());
+        address = getArguments().getString("address");
         alerttype = getArguments().getString("etype");
         alertbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertAll();
+                if(alerttype.equals("Robbery") || alerttype.equals("Fire") || alerttype.equals("Fire in the Department")){
+                    Robbery();
+                }else {
+                    AlertAll();
+                }
+
             }
         });
 
@@ -127,12 +134,39 @@ public  class EmergencyText extends DialogFragment implements View.OnClickListen
 
     }
 
+    public void Robbery (){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setCancelable(false);
+        builder.setTitle("Confirm");
+        if (address != null){
+            builder.setMessage("You'll be notifying every one around "+ address+" about these emergency?");
+        }else {
+            builder.setMessage("You'll be notifying every one around your current location about these emergency?");
+
+        }
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+                sendNotification();
+            }
+        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
+
+    }
+
     private void sendNotification() {
         if (TextUtils.isEmpty(editText.getText().toString().trim())){
             editText.setError("This is required");
             return;
         }
-        new Controls(auth).sendNotificationandSave(editText.getText().toString(), alerttype, usertype,this);
+        new Controls(auth).sendNotificationandSave(editText.getText().toString(), alerttype, usertype,this, latitude, longitude);
 
     }
 

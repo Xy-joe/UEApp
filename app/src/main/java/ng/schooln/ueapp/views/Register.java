@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
 
@@ -20,6 +21,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.text.Editable;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -39,6 +41,7 @@ import java.util.List;
 
 import ng.schooln.ueapp.R;
 import ng.schooln.ueapp.controllers.Controls;
+import ng.schooln.ueapp.utils.TextWatcherAdapter;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -55,6 +58,7 @@ public class Register extends AppCompatActivity  {
     private EditText mPasswordView;
     private EditText mConfirmPasswordView;
     private View mProgressView;
+    private TextInputLayout passlay, conpasslay;
     private View mLoginFormView;
     private TextView login;
     private FirebaseAuth auth;
@@ -68,6 +72,8 @@ public class Register extends AppCompatActivity  {
         init();
         mEmailView = findViewById(R.id.email);
         mConfirmPasswordView = findViewById(R.id.conpassword);
+        passlay = findViewById(R.id.passwordlay);
+        conpasslay = findViewById(R.id.conpasswordlay);
         mPasswordView = findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -79,7 +85,18 @@ public class Register extends AppCompatActivity  {
                 return false;
             }
         });
-
+        mPasswordView.addTextChangedListener(new TextWatcherAdapter() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                passlay.setPasswordVisibilityToggleEnabled(s.length()>0);
+            }
+        });
+        mConfirmPasswordView.addTextChangedListener(new TextWatcherAdapter() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                conpasslay.setPasswordVisibilityToggleEnabled(s.length()>0);
+            }
+        });
         FloatingActionButton mEmailSignInButton = findViewById(R.id.fab);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override

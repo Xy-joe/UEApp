@@ -27,7 +27,7 @@ private FirebaseAuth auth;
 private  String picturepath, dept, faculty;
 private RelativeLayout officelay, levellay, usertypelay;
 private EditText office;
-private Spinner levelspinner;
+private Spinner levelspinner, officespin;
 private Button levelbtn, officebtn;
 
 
@@ -48,6 +48,7 @@ private Button levelbtn, officebtn;
         officebtn = findViewById(R.id.officebtn);
         officelay = findViewById(R.id.officelay);
         levelspinner = findViewById(R.id.deptspinner);
+        officespin = findViewById(R.id.officespin);
         levellay = findViewById(R.id.levellay);
         levelbtn = findViewById(R.id.levelbtn);
         dept = getIntent().getStringExtra("dept");
@@ -55,6 +56,28 @@ private Button levelbtn, officebtn;
         usertypelay = findViewById(R.id.main1);
         office.setTypeface(custom);
         levelbtn.setTypeface(custom);
+        officespin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if (adapterView.getSelectedItemPosition() != 0){
+                    officebtn.setVisibility(View.VISIBLE);
+                    office.setVisibility(View.GONE);
+                }
+                if (adapterView.getSelectedItemPosition() == 4){
+                    office.setVisibility(View.VISIBLE);
+                    if (office.getText().equals("")){
+                        officebtn.setVisibility(View.GONE);
+                    }else {
+                        officebtn.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
         levelspinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -105,7 +128,11 @@ private Button levelbtn, officebtn;
 
     public void CreateStaff(View v){
         if (auth.getCurrentUser() != null){
-            new Controls(auth).createAccount(this,office.getText().toString(),picturepath,dept,faculty,levelspinner.getSelectedItem().toString());
+            if (officespin.getSelectedItemPosition() != 0 && !office.getText().toString().equals("")){
+                new Controls(auth).createAccount(this,office.getText().toString(),picturepath,dept,faculty,levelspinner.getSelectedItem().toString());
+            }else if (officespin.getSelectedItemPosition() != 0){
+                new Controls(auth).createAccount(this,officespin.getSelectedItem().toString(),picturepath,dept,faculty,levelspinner.getSelectedItem().toString());
+            }
         }
     }
 

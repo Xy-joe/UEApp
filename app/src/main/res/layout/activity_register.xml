@@ -84,6 +84,7 @@
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
+                android:id="@+id/passwordlay"
                 android:layout_height="wrap_content">
 
                 <EditText
@@ -92,6 +93,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_password"
                     android:imeActionId="6"
+                    app:passwordToggleTint="@color/grey"
                     android:drawableStart="@drawable/ic_lock"
                     android:imeActionLabel="@string/action_sign_in_short"
                     android:imeOptions="actionUnspecified"
@@ -102,6 +104,7 @@
             </android.support.design.widget.TextInputLayout>
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
+                android:id="@+id/conpasswordlay"
                 android:layout_height="wrap_content">
 
                 <EditText
@@ -113,6 +116,7 @@
                     android:drawableStart="@drawable/ic_lock"
                     android:imeActionLabel="@string/action_sign_in_short"
                     android:imeOptions="actionUnspecified"
+                    app:passwordToggleTint="@color/grey"
                     android:inputType="textPassword"
                     android:maxLines="1"
                     android:singleLine="true" />

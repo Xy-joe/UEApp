@@ -83,7 +83,7 @@ public class Userprofile extends AppCompatActivity {
     }
 
     private void setUptheViews() {
-        dbHelper.userref().child(usertype).child(auth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+        dbHelper.userref().child(usertype).child(myId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() != null ){

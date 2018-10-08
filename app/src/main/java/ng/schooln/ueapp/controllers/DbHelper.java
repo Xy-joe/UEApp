@@ -60,6 +60,10 @@ public class DbHelper {
         return FirebaseDatabase.getInstance().getReference().child(variables.Appname).child(variables.Dept).child(dept).child("sta");
     }
 
+    public DatabaseReference UsersCurrentLocation(){
+        return FirebaseDatabase.getInstance().getReference().child(variables.Appname).child(variables.Locations);
+    }
+
     public DatabaseReference studentdepartmentref(String dept){
         return FirebaseDatabase.getInstance().getReference().child(variables.Appname).child(variables.Dept).child(dept).child("stu");
     }

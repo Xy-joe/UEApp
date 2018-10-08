@@ -32,7 +32,7 @@
     <string name="question">whats you emergency?</string>
     <string name="fpass_text">Enter your email to receive your password reset link</string>
     <string name="dont_have_an">Do not have an account ?</string>
-    <string name="already_have_an">Already have an account ?</string>
+    <string name="already_have_an">Already a Member</string>
     <string name="title_activity_homepage">Map</string>
     <string name="staff">Staff</string>
     <string name="student">Student</string>
@@ -82,8 +82,16 @@
         <item>Physics (IPH)</item>
         <item>Science Laboratory Technology (SLT)</item>
         <item>Statistics (STA)</item>
-
-
     </string-array>
+
+    <string-array name="offices">
+        <item> -- Select your Position -- </item>
+        <item>Head Of Department (H.O.D)</item>
+        <item>Lecturer</item>
+        <item>Secretary</item>
+        <item>Others</item>
+    </string-array>
+
     <string name="title_activity_userprofile">Userprofile</string>
+    <string name="historelog">History Log</string>
 </resources>

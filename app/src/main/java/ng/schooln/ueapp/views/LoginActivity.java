@@ -3,10 +3,12 @@ package ng.schooln.ueapp.views;
 
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
 
+import android.text.Editable;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -20,6 +22,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import ng.schooln.ueapp.R;
 import ng.schooln.ueapp.controllers.Controls;
+import ng.schooln.ueapp.utils.TextWatcherAdapter;
 
 /**
  * A login screen that offers login via email/password.
@@ -29,6 +32,7 @@ public class LoginActivity extends AppCompatActivity  {
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
+    private TextInputLayout loginlay;
     private TextView register, forgotp;
     private FirebaseAuth auth;
 
@@ -39,19 +43,15 @@ public class LoginActivity extends AppCompatActivity  {
         // Set up the login form.
         mEmailView = findViewById(R.id.email);
         auth = FirebaseAuth.getInstance();
+        loginlay = findViewById(R.id.loginlay);
 
         mPasswordView = findViewById(R.id.password);
-       /* mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        mPasswordView.addTextChangedListener(new TextWatcherAdapter() {
             @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
+            public void afterTextChanged(Editable s) {
+               loginlay.setPasswordVisibilityToggleEnabled(s.length()>0);
             }
         });
-        */
 
         FloatingActionButton mEmailSignInButton = findViewById(R.id.fab);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {

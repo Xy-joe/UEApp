@@ -3,6 +3,7 @@ package ng.schooln.ueapp.adapters;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Typeface;
+import android.location.Address;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,6 +18,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -24,6 +26,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import ng.schooln.ueapp.R;
 import ng.schooln.ueapp.controllers.DbHelper;
@@ -47,18 +50,21 @@ public class EtypeAdapter extends RecyclerView.Adapter<EtypeAdapter.ViewHold> {
     private ArrayList<StaffModel> data = new ArrayList<>();
     private ArrayList<StudentModel> studata = new ArrayList<>();
     private FirebaseAuth auth;
-    protected Location location;
+    protected LatLng location;
+    List<Address> addresses;
 
 
 
 
-    public EtypeAdapter(Context applicationContext, ArrayList<StudentModel> studata, ArrayList<StaffModel> data, FirebaseAuth auth, StaffModel staffModel, StudentModel studentModel, Location location) {
+    public EtypeAdapter(Context applicationContext, ArrayList<StudentModel> studata, ArrayList<StaffModel> data, FirebaseAuth auth, StaffModel staffModel,
+                        StudentModel studentModel, LatLng location, List<Address> addresses) {
         this.context = applicationContext;
         this.data = data;
         this.location = location;
         this.studata = studata;
         this.staffModel = staffModel;
         this.studentModel = studentModel;
+        this.addresses = addresses;
         this.auth = auth;
     }
 
@@ -120,7 +126,14 @@ public class EtypeAdapter extends RecyclerView.Adapter<EtypeAdapter.ViewHold> {
             Homepage homepage = (Homepage) context;
             Bundle bundle = new Bundle();
             bundle.putString("etype", val );
-            bundle.putParcelable("location", location);
+            if (addresses != null){
+                bundle.putString("address",addresses.get(0).getAddressLine(0));
+            }
+            if (location != null){
+                bundle.putDouble("latitude", location.latitude);
+                bundle.putDouble("longitude", location.longitude);
+            }
+
             if (staffModel != null){
                 bundle.putString("usertype", variables.Staffs);
             }else {
